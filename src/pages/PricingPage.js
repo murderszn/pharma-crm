@@ -9,29 +9,31 @@ export function PricingPage() {
   };
 
   const features = {
-    platform: [
+    basic: [
       'Access to Aurablox platform',
-      'App hub integration',
-      'AI agent toolbox',
-      'Basic integrations',
-      'Standard documentation',
-      'Community support'
+      'Enterprise card links',
+      'Basic AI Toybox access',
+      'Standard support',
+      'Up to 10 users',
+      'Monthly usage reports'
     ],
-    setup: [
-      'Everything in Platform tier',
-      'Custom setup & configuration',
-      'API connections',
-      'Database integrations',
-      'Authentication setup',
-      'Implementation support'
+    premium: [
+      'Everything in Basic tier',
+      'Premium Aurablox AI agents',
+      'Advanced AI Toybox features',
+      'Priority support',
+      'Unlimited users',
+      'Custom integrations',
+      'Quarterly business reviews'
     ],
     enterprise: [
-      'Everything in Setup tier',
+      'Everything in Premium tier',
       'Dedicated account manager',
-      'Priority support',
-      'Custom development',
+      'Custom development services',
       'Advanced security features',
-      'Quarterly business reviews'
+      'SLA guarantees',
+      'White-labeling options',
+      'On-premise deployment available'
     ]
   };
 
@@ -45,10 +47,10 @@ export function PricingPage() {
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
             <span className="block">Simple, transparent</span>
-            <span className="block text-primary-600">pricing for everyone</span>
+            <span className="block text-primary-600">subscription pricing</span>
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Choose the perfect plan for your business. Get started with Aurablox today and transform your workflow.
+            Choose the perfect plan for your team. Scale as you grow with our flexible per-user pricing.
           </p>
         </div>
       </div>
@@ -56,18 +58,18 @@ export function PricingPage() {
       {/* Pricing Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-24">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {/* Platform Only Tier */}
+          {/* Basic Tier */}
           <div className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <div className="mb-6 sm:mb-8">
-              <h3 className="text-xl font-semibold leading-6 text-gray-900">Platform Only</h3>
-              <p className="mt-4 text-sm text-gray-500">Perfect for teams that want to get started quickly with our core features.</p>
+              <h3 className="text-xl font-semibold leading-6 text-gray-900">Basic</h3>
+              <p className="mt-4 text-sm text-gray-500">Essential tools for teams getting started with Aurablox.</p>
               <div className="mt-4">
-                <span className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">$4,999</span>
-                <span className="text-base font-medium text-gray-500"> one-time</span>
+                <span className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">$15</span>
+                <span className="text-base font-medium text-gray-500">/user/month</span>
               </div>
             </div>
             <ul className="mb-8 space-y-4 flex-1">
-              {features.platform.map((feature, index) => (
+              {features.basic.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <div className="flex-shrink-0">
                     <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,24 +88,21 @@ export function PricingPage() {
             </button>
           </div>
 
-          {/* Platform with Setup Tier */}
+          {/* Premium Tier */}
           <div className="relative flex flex-col rounded-2xl border-2 border-primary-500 bg-white p-6 sm:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="absolute -top-4 sm:-top-5 left-0 right-0 mx-auto w-32 rounded-full bg-gradient-to-r from-primary-600 to-primary-400 px-3 py-2 text-sm font-semibold text-white text-center">
-              Popular Choice
+              Most Popular
             </div>
             <div className="mb-8">
-              <h3 className="text-lg font-semibold leading-5 text-gray-900">Platform with Setup</h3>
-              <p className="mt-4 text-sm text-gray-500">For teams that need professional setup and configuration.</p>
+              <h3 className="text-lg font-semibold leading-5 text-gray-900">Premium</h3>
+              <p className="mt-4 text-sm text-gray-500">Advanced AI capabilities for growing organizations.</p>
               <div className="mt-4">
-                <span className="text-4xl font-bold tracking-tight text-gray-900">$4,999</span>
-                <span className="text-base font-medium text-gray-500"> one-time</span>
-                <span className="block text-base font-medium text-gray-500">+</span>
-                <span className="text-2xl font-bold tracking-tight text-gray-900">$299</span>
-                <span className="text-base font-medium text-gray-500">/hour</span>
+                <span className="text-4xl font-bold tracking-tight text-gray-900">$20</span>
+                <span className="text-base font-medium text-gray-500">/user/month</span>
               </div>
             </div>
             <ul className="mb-8 space-y-4 flex-1">
-              {features.setup.map((feature, index) => (
+              {features.premium.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <div className="flex-shrink-0">
                     <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,10 +125,14 @@ export function PricingPage() {
           <div className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <div className="mb-8">
               <h3 className="text-lg font-semibold leading-5 text-gray-900">Enterprise</h3>
-              <p className="mt-4 text-sm text-gray-500">Custom solutions for large organizations with complex needs.</p>
+              <p className="mt-4 text-sm text-gray-500">Custom solutions with dedicated development services.</p>
               <div className="mt-4">
-                <span className="text-4xl font-bold tracking-tight text-gray-900">Custom</span>
-                <span className="block text-base font-medium text-gray-500">Contact sales for pricing</span>
+                <span className="text-4xl font-bold tracking-tight text-gray-900">$20</span>
+                <span className="text-base font-medium text-gray-500">/user/month</span>
+                <span className="block text-base font-medium text-gray-500 mt-2">+</span>
+                <span className="text-2xl font-bold tracking-tight text-gray-900">$299</span>
+                <span className="text-base font-medium text-gray-500">/hour</span>
+                <span className="block text-sm text-gray-500 mt-1">for consulting & development</span>
               </div>
             </div>
             <ul className="mb-8 space-y-4 flex-1">
@@ -158,20 +161,20 @@ export function PricingPage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Frequently Asked Questions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div className="bg-white rounded-lg p-5 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">What's included in the setup fee?</h3>
-              <p className="text-gray-600">Our setup service includes custom configuration, API integrations, database setup, and authentication implementation. We work with your team to ensure a smooth deployment.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">How does per-user pricing work?</h3>
+              <p className="text-gray-600">Our subscription is based on the number of user accounts you need. You can add or remove users at any time, and your billing will adjust accordingly.</p>
             </div>
             <div className="bg-white rounded-lg p-5 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">How long does setup typically take?</h3>
-              <p className="text-gray-600">Setup duration varies based on your requirements. Most implementations take 2-4 weeks, but we'll provide a detailed timeline during our initial consultation.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">What are Premium AI agents?</h3>
+              <p className="text-gray-600">Premium AI agents provide advanced automation capabilities, including custom workflows, enhanced content generation, and specialized industry-specific tools.</p>
             </div>
             <div className="bg-white rounded-lg p-5 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Do you offer custom development?</h3>
-              <p className="text-gray-600">Yes, our Enterprise tier includes custom development services. We can build custom features and integrations tailored to your specific needs.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">How are consulting hours billed?</h3>
+              <p className="text-gray-600">Consulting and development hours are tracked and billed monthly. We provide detailed reports of all work performed and only bill for actual time spent on your projects.</p>
             </div>
             <div className="bg-white rounded-lg p-5 sm:p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">What kind of support is included?</h3>
-              <p className="text-gray-600">All tiers include basic support. Enterprise customers get priority support and a dedicated account manager for enhanced assistance.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Can I upgrade or downgrade my plan?</h3>
+              <p className="text-gray-600">Yes, you can change your subscription tier at any time. Upgrades take effect immediately, while downgrades will apply at the start of your next billing cycle.</p>
             </div>
           </div>
         </div>
