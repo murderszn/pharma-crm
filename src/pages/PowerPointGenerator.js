@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from '../components/Toast';
 import { geminiApi } from '../services/geminiApi';
 import { QuickStart } from '../components/QuickStart';
+import { BetaBadge, BetaMessage } from '../components/BetaDisclaimer';
 
 export function PowerPointGenerator() {
   const [slideContent, setSlideContent] = useState('');
@@ -12,6 +13,7 @@ export function PowerPointGenerator() {
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [previewSlides, setPreviewSlides] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const moodOptions = [
     { value: 'professional', label: 'Professional', description: 'Clean, corporate style with emphasis on clarity' },
@@ -30,8 +32,8 @@ export function PowerPointGenerator() {
   const quickStartGuides = [
     {
       title: "Content Creation",
-      description: "Start by entering your presentation content. Break sections with double newlines or [new slide] to create separate slides.",
-      keywords: ["Content", "Slides", "Structure"],
+      description: "Enter your presentation content in a structured way. Use [Title] for slide titles, [Content] for main content, and [New Slide] to separate slides. Add bullet points with * or numbers with 1., 2., etc.",
+      keywords: ["Content", "Structure", "Organization"],
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -39,8 +41,8 @@ export function PowerPointGenerator() {
       )
     },
     {
-      title: "Style & Theme",
-      description: "Choose your presentation mood and theme. Each combination creates a unique visual style for your slides.",
+      title: "Style Selection",
+      description: "Choose a presentation mood and theme that matches your content. Professional for business, Creative for pitches, Informative for data, Energetic for engagement.",
       keywords: ["Design", "Mood", "Theme"],
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,19 +51,19 @@ export function PowerPointGenerator() {
       )
     },
     {
-      title: "Generate & Preview",
-      description: "Click Generate to create your presentation. The AI will generate VBA code and show you a live preview of your slides.",
-      keywords: ["Generate", "Preview", "AI"],
+      title: "Generation Process",
+      description: "Click Generate to create your presentation. The AI will: 1) Generate VBA code, 2) Create a live preview, 3) Prepare downloadable files. Review and navigate through slides in the preview.",
+      keywords: ["Generate", "Preview", "Review"],
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       )
     },
     {
-      title: "Download & Customize",
-      description: "1. Download the PPTX file\n2. Open in PowerPoint\n3. Press Alt + F11 for VBA editor\n4. Copy & paste the generated code\n5. Run the macro to apply changes",
-      keywords: ["Download", "VBA", "Customize"],
+      title: "Using Your Presentation",
+      description: "Download as PPTX or PDF. To customize: 1) Open in PowerPoint, 2) Press Alt+F11 for VBA editor, 3) Create new module, 4) Paste generated code, 5) Run macro to apply changes.",
+      keywords: ["Download", "Customize", "Export"],
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -71,17 +73,11 @@ export function PowerPointGenerator() {
   ];
 
   const parseVBACodeToSlides = (vbaCode) => {
-    // Ensure we have the complete VBA code
-    if (!vbaCode.includes('End Sub')) {
-      console.error('Incomplete VBA code received');
-      return [];
-    }
-
     // Extract slide content and formatting from VBA code
-    const slideMatches = vbaCode.match(/With sld(\r?\n|\n|\r|.)*?End With/g) || [];
+    const slideMatches = vbaCode.match(/With sld(\r?\n.*?)*?End With/g) || [];
     
     return slideMatches.map((slideMatch, index) => {
-      // Extract slide properties using non-greedy matches
+      // Extract slide properties
       const titleMatch = slideMatch.match(/\.Shapes\.Title\.TextFrame\.TextRange\.Text = "(.*?)"/);
       const contentMatch = slideMatch.match(/\.Shapes\.TextFrame\.TextRange\.Text = "(.*?)"/);
       const layoutMatch = slideMatch.match(/\.Layout = ppLayout(\w+)/);
@@ -96,10 +92,10 @@ export function PowerPointGenerator() {
 
       // Determine layout and content
       const layout = layoutMatch ? layoutMatch[1].toLowerCase() : (index === 0 ? 'title' : 'content');
-      const title = titleMatch ? titleMatch[1].replace(/\\n/g, '\n') : '';
-      const content = contentMatch ? contentMatch[1].replace(/\\n/g, '\n') : '';
+      const title = titleMatch ? titleMatch[1] : '';
+      const content = contentMatch ? contentMatch[1] : '';
 
-      // Extract any custom formatting using non-greedy matches
+      // Extract any custom formatting
       const fontMatch = slideMatch.match(/\.Font\.Name = "(.*?)"/);
       const fontSizeMatch = slideMatch.match(/\.Font\.Size = (\d+)/);
       const colorTextMatch = slideMatch.match(/\.Font\.Color\.RGB = RGB\((.*?)\)/);
@@ -129,31 +125,51 @@ export function PowerPointGenerator() {
     setGeneratedVBA('');
     setPreviewSlides([]);
     setDownloadUrl(null);
+    setPdfUrl(null);
 
     try {
-      // Step 1: Generate VBA Code with complete example
-      const prompt = `Create a PowerPoint VBA macro named 'GeneratePresentation' that generates a presentation with the following content:
+      // Step 1: Process and structure the content
+      const processedContent = slideContent
+        .split(/\[new slide\]/gi)
+        .map(slide => slide.trim())
+        .filter(Boolean)
+        .map(slide => {
+          const titleMatch = slide.match(/\[title\](.*?)(?:\[content\]|$)/is);
+          const contentMatch = slide.match(/\[content\](.*?)$/is);
+          return {
+            title: titleMatch ? titleMatch[1].trim() : '',
+            content: contentMatch ? contentMatch[1].trim() : slide.trim()
+          };
+        });
 
-${slideContent}
+      // Step 2: Generate VBA Code with structured content
+      const prompt = `Create a PowerPoint VBA macro named 'GeneratePresentation' that generates a professional presentation with the following structured content:
+
+${processedContent.map((slide, index) => `
+Slide ${index + 1}:
+Title: ${slide.title || 'Generated Title'}
+Content: ${slide.content}
+`).join('\n')}
 
 Use these specifications:
 - Mood: ${selectedMood}
 - Theme: ${selectedTheme}
 
 The VBA code must:
-1. Create a new presentation
-2. Set the theme and apply mood-appropriate styling
+1. Create a new presentation with proper branding
+2. Set the theme and apply ${selectedMood} mood-appropriate styling:
+   - Professional: Clean, corporate colors (blues, grays)
+   - Creative: Dynamic, vibrant colors
+   - Informative: Data-friendly colors with clear contrast
+   - Energetic: Bold, engaging colors
 3. Create slides with proper content distribution
-4. Include proper error handling
-5. Add animations and transitions
-6. Format text and layouts according to the mood
-
-IMPORTANT: 
-- Include all text content, colors (as RGB values), fonts, and formatting in the VBA code
-- Use proper line breaks with "\\n" in strings for multi-line content
-- Ensure each slide section is complete with proper With/End With blocks
-- Include error handling and cleanup code
-- The code must be complete and executable
+4. Add appropriate animations and transitions
+5. Format text and layouts according to content type
+6. Include proper error handling
+7. Add footer with slide numbers and date
+8. Create a title slide with proper branding
+9. Format bullet points and numbered lists properly
+10. Add subtle gradient backgrounds matching the mood
 
 Format the VBA code exactly like this example:
 Sub GeneratePresentation()
@@ -161,6 +177,12 @@ Sub GeneratePresentation()
     
     Dim ppt As Presentation
     Set ppt = Application.ActivePresentation
+    
+    'Set Theme and Branding
+    With ppt
+        .ApplyTheme "${selectedTheme}"
+        .SlideMaster.Background.Fill.ForeColor.RGB = RGB(255, 255, 255)
+    End With
     
     'Create Title Slide
     Dim sld As Slide
@@ -180,7 +202,9 @@ ExitSub:
 ErrorHandler:
     MsgBox "Error " & Err.Number & ": " & Err.Description
     Resume ExitSub
-End Sub`;
+End Sub
+
+IMPORTANT: Include all text content, colors (as RGB values), fonts, and formatting in the VBA code. Make sure to handle all slides and content provided.`;
 
       const response = await geminiApi.generateText(prompt);
       
@@ -191,16 +215,16 @@ End Sub`;
 
       const vbaCode = response.message || response;
       
-      // Verify we have complete VBA code
-      if (!vbaCode.includes('End Sub')) {
-        toast.error('Generated VBA code was incomplete');
-        return;
+      // Validate VBA code completeness
+      if (!vbaCode.includes('End Sub') || !vbaCode.includes('ErrorHandler:')) {
+        toast.error('Generated VBA code was incomplete, retrying...');
+        throw new Error('Incomplete VBA code');
       }
 
       setGeneratedVBA(vbaCode);
       toast.success('VBA code generated successfully!');
 
-      // Step 2: Generate Preview from VBA Code
+      // Step 3: Generate Preview from VBA Code
       const parsedSlides = parseVBACodeToSlides(vbaCode);
       if (parsedSlides.length > 0) {
         setPreviewSlides(parsedSlides);
@@ -210,24 +234,41 @@ End Sub`;
         toast.error('Could not generate preview from VBA code');
       }
 
-      // Step 3: Prepare Download
+      // Step 4: Prepare Downloads
       const formData = new FormData();
       formData.append('vbaCode', vbaCode);
       formData.append('fileName', 'presentation.pptx');
 
-      const response2 = await fetch('/api/generate-powerpoint', {
+      // Generate PPTX
+      const pptxResponse = await fetch('/api/generate-powerpoint', {
         method: 'POST',
         body: formData
       });
 
-      if (!response2.ok) {
+      if (!pptxResponse.ok) {
         throw new Error('Failed to generate PowerPoint file');
       }
 
-      const blob = await response2.blob();
-      const url = window.URL.createObjectURL(blob);
-      setDownloadUrl(url);
+      const pptxBlob = await pptxResponse.blob();
+      const pptxUrl = window.URL.createObjectURL(pptxBlob);
+      setDownloadUrl(pptxUrl);
       toast.success('PowerPoint file ready for download!');
+
+      // Generate PDF
+      const pdfResponse = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!pdfResponse.ok) {
+        throw new Error('Failed to generate PDF file');
+      }
+
+      const pdfBlob = await pdfResponse.blob();
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+      setPdfUrl(pdfUrl);
+      toast.success('PDF version also available!');
+
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to complete the generation process');
@@ -257,6 +298,20 @@ End Sub`;
     link.click();
     document.body.removeChild(link);
     toast.success('Downloading PowerPoint file...');
+  };
+
+  const downloadPDF = () => {
+    if (!pdfUrl) {
+      toast.error('PDF file not ready yet');
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = 'presentation.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Downloading PDF file...');
   };
 
   const nextSlide = () => {
@@ -296,6 +351,7 @@ End Sub`;
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-800/50 border border-primary-700/50 backdrop-blur-sm">
                 <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></div>
                 <span className="text-sm text-primary-100">AI-Powered Presentations</span>
+                <BetaBadge />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white">
                 PowerPoint Slide Generator
@@ -303,6 +359,7 @@ End Sub`;
               <p className="text-lg text-primary-200 max-w-xl">
                 Create professional presentations with AI-powered content and styling
               </p>
+              <BetaMessage />
               <div className="flex items-center gap-4 pt-2">
                 <div className="flex items-center space-x-2 text-sm text-primary-200">
                   <svg className="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -421,17 +478,33 @@ End Sub`;
                 </button>
 
                 {downloadUrl && (
-                  <button
-                    onClick={downloadPowerPoint}
-                    className="px-6 py-3 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
-                  >
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download PPTX
-                    </div>
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={downloadPowerPoint}
+                      className="px-4 py-3 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-all duration-200"
+                    >
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        PPTX
+                      </div>
+                    </button>
+                    
+                    {pdfUrl && (
+                      <button
+                        onClick={downloadPDF}
+                        className="px-4 py-3 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition-all duration-200"
+                      >
+                        <div className="flex items-center">
+                          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          PDF
+                        </div>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -442,7 +515,7 @@ End Sub`;
               {previewSlides.length > 0 && (
                 <div className="bg-white rounded-xl p-6 border border-gray-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">VBA-Generated Preview</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Preview</h3>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={previousSlide}
@@ -517,24 +590,6 @@ End Sub`;
                   <pre className="p-4 bg-gray-800 text-gray-100 rounded-lg overflow-x-auto">
                     <code>{generatedVBA}</code>
                   </pre>
-                </div>
-              )}
-
-              {/* Instructions */}
-              {generatedVBA && (
-                <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-                  <h3 className="text-lg font-medium text-blue-900 mb-2">How to Use</h3>
-                  <ol className="list-decimal list-inside space-y-2 text-blue-800">
-                    <li>Click the "Download PPTX" button to get your presentation</li>
-                    <li>Open the PowerPoint file in Microsoft PowerPoint</li>
-                    <li>If you want to modify the VBA code:</li>
-                    <ol className="list-decimal list-inside ml-4 mt-2 space-y-1 text-blue-700">
-                      <li>Press Alt + F11 to open the VBA editor</li>
-                      <li>Copy the generated VBA code</li>
-                      <li>Paste it into a new module in the VBA editor</li>
-                      <li>Run the macro to apply any modifications</li>
-                    </ol>
-                  </ol>
                 </div>
               )}
             </div>

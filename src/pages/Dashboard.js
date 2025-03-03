@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from '../components/Toast';
 import { QuickStartGuide } from '../components/QuickStartGuide';
+import { BetaBadge } from '../components/BetaDisclaimer';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -394,8 +395,24 @@ export function Dashboard() {
   const handleAppClick = (appId, appName) => {
     console.log(`Launching ${appName}`);
     
-    // Handle navigation for all applications
-    const appUrls = {
+    // Handle internal routes first
+    const internalRoutes = {
+      'ai-toybox': '/ai-toybox',
+      'grant-writer': '/grant-writer',
+      'rfp-finder': '/rfp-finder',
+      'grant-finder': '/grant-finder',
+      'rfp-manager': '/rfp-manager',
+      'social-media-manager': '/social-media-manager',
+      'powerpoint-generator': '/powerpoint-generator'
+    };
+
+    if (internalRoutes[appId]) {
+      navigate(internalRoutes[appId]);
+      return;
+    }
+
+    // Handle external apps that should open in new tab
+    const externalApps = {
       'microsoft-365': 'https://www.office.com',
       'google-workspace': 'https://workspace.google.com',
       'zoom': 'https://zoom.us',
@@ -423,75 +440,11 @@ export function Dashboard() {
       'databricks': 'https://databricks.com/login',
       'snowflake': 'https://app.snowflake.com',
       'tableau': 'https://online.tableau.com',
-      'sigma': 'https://app.sigmacomputing.com/login',
-      'powerpoint-generator': '/powerpoint-generator'
+      'sigma': 'https://app.sigmacomputing.com/login'
     };
 
-    if (appUrls[appId]) {
-      window.open(appUrls[appId], '_blank');
-      return;
-    }
-
-    // Handle existing navigation logic
-    if (appId === 'google-drive') {
-      window.open('https://drive.google.com', '_blank');
-      return;
-    }
-    
-    // Handle navigation for storage apps
-    if (appId === 'sharepoint') {
-      window.open('https://www.office.com/launch/sharepoint', '_blank');
-      return;
-    }
-    
-    if (appId === 'azure-storage') {
-      window.open('https://portal.azure.com/#blade/Microsoft_Azure_Storage/StorageAccountListBlade', '_blank');
-      return;
-    }
-
-    if (appId === 'ms-teams') {
-      window.open('https://teams.microsoft.com', '_blank');
-      return;
-    }
-    
-    if (appId === 'outlook-online') {
-      window.open('https://outlook.office.com', '_blank');
-      return;
-    }
-    
-    if (appId === 'slack') {
-      window.open('https://slack.com/signin', '_blank');
-      return;
-    }
-
-    // Handle navigation for all apps
-    if (appId === 'ai-toybox') {
-      navigate('/ai-toybox');
-      return;
-    }
-    
-    if (appId === 'grant-writer') {
-      navigate('/grant-writer');
-      return;
-    }
-
-    if (appId === 'rfp-finder') {
-      navigate('/rfp-finder');
-      return;
-    }
-
-    if (appId === 'grant-finder') {
-      navigate('/grant-finder');
-      return;
-    }
-
-    if (appId === 'rfp-manager') {
-      navigate('/rfp-manager');
-      return;
-    }
-    
-    if (appId === 'social-media-manager') {
-      navigate('/social-media-manager');
+    if (externalApps[appId]) {
+      window.open(externalApps[appId], '_blank');
       return;
     }
     
@@ -782,14 +735,15 @@ export function Dashboard() {
         </svg>
       ),
       description: 'Use AI to find and filter RFP opportunities that match your nonprofit\'s mission',
-      isAI: true
+      isAI: true,
+      isBeta: true
     },
     {
       id: 'rfp-manager',
       name: 'RFP Manager',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15" />
         </svg>
       ),
       description: 'Generate and manage RFP responses with AI assistance',
@@ -815,7 +769,8 @@ export function Dashboard() {
         </svg>
       ),
       description: 'Discover grants tailored to your organization\'s programs using AI matching',
-      isAI: true
+      isAI: true,
+      isBeta: true
     },
     {
       id: 'grant-writer',
@@ -830,14 +785,15 @@ export function Dashboard() {
     },
     {
       id: 'powerpoint-generator',
-      name: 'PowerPoint Generator',
+      name: 'Slide Generator',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
         </svg>
       ),
       description: 'Generate professional PowerPoint presentations with VBA code using AI assistance',
-      isAI: true
+      isAI: true,
+      isBeta: true
     }
   ];
 
@@ -882,20 +838,21 @@ export function Dashboard() {
               {/* Holographic outline effect */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-300 via-primary-400/50 to-primary-600 rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
               
-              <div className="relative flex items-center space-x-4 bg-white p-6 rounded-xl border border-gray-200/50 hover:border-primary-500/50 transition-all duration-200">
-                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-primary-500/10 text-primary-600">
-              {app.icon}
+              <div className="relative flex items-center space-x-5 bg-white p-8 rounded-xl border border-gray-200/50 hover:border-primary-500/50 transition-all duration-200 min-h-[200px]">
+                <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center rounded-lg bg-primary-500/10 text-primary-600">
+                  {app.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-primary-600 transition-colors">
+                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-primary-600 transition-colors flex items-center">
                     {app.name}
+                    {app.isBeta && <BetaBadge className="ml-2" />}
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                  <p className="mt-2 text-sm text-gray-500 line-clamp-3">
                     {app.description}
                   </p>
-                  <div className="mt-2 flex items-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
-                      AI Enabled
+                  <div className="mt-3 flex items-center">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800">
+                      Gen AI
                     </span>
                   </div>
                 </div>
@@ -919,7 +876,7 @@ export function Dashboard() {
               .map((app) => (
                 <div
                   key={app.id}
-                  className={`app-icon group relative flex flex-col p-6 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 min-h-[240px] ${app.isAI ? 'ai-enabled' : ''}`}
+                  className={`app-icon group relative flex flex-col p-8 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 min-h-[240px] ${app.isAI ? 'ai-enabled' : ''}`}
                   onClick={() => handleAppClick(app.id, app.name)}
                   onMouseEnter={() => setActiveTooltip(app.id)}
                   onMouseLeave={() => setActiveTooltip(null)}
@@ -927,13 +884,13 @@ export function Dashboard() {
                   <div className="text-primary-600 group-hover:text-primary-700 mb-4">
                     {app.icon}
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{app.name}</h3>
-                  <p className="text-sm text-gray-600 flex-grow">{app.description}</p>
+                  <h3 className="text-xl font-medium text-gray-900 mb-2">{app.name}</h3>
+                  <p className="text-sm text-gray-600 flex-grow line-clamp-3">{app.description}</p>
                   {app.isAI && (
-                    <span className="ai-badge absolute top-4 right-4">
-                      AI Enabled
-              </span>
-            )}
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800 absolute top-4 right-4">
+                      Gen AI
+                    </span>
+                  )}
                   {activeTooltip === app.id && tooltips[app.id] && (
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 w-64">
                       {tooltips[app.id]}

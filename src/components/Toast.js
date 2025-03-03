@@ -100,7 +100,6 @@ const ToastContainer = ({ toasts, removeToast }) => {
 
 // Toast service
 let toastCount = 0;
-const toasts = [];
 let setToastsState = null;
 
 export const ToastProvider = ({ children }) => {

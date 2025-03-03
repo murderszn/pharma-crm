@@ -78,16 +78,13 @@ const RFPFinder = () => {
                     <h3 className="text-xl font-semibold">Search Results</h3>
                     {results.map((result, index) => (
                         <div key={index} className="border p-4 rounded-lg hover:bg-gray-50">
-                            <h4 className="text-lg font-medium mb-2">
-                                <a
-                                    href={result.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    {result.title}
-                                </a>
-                            </h4>
+                            <div className="flex items-center gap-3 mb-2">
+                                <h4 className="text-lg font-medium text-blue-600 hover:underline">
+                                    <a href={result.url}>
+                                        {result.title}
+                                    </a>
+                                </h4>
+                            </div>
                             <p className="text-gray-600 mb-2">{result.description}</p>
                             <p className="text-sm text-gray-500">Source: {result.source}</p>
                         </div>

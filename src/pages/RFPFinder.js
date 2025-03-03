@@ -1,6 +1,7 @@
 import React from 'react';
 import RFPFinder from '../components/RFPFinder';
 import { QuickStart } from '../components/QuickStart';
+import { BetaBadge, BetaMessage } from '../components/BetaDisclaimer';
 
 export function RFPFinderPage() {
   const quickStartGuides = [
@@ -63,6 +64,7 @@ export function RFPFinderPage() {
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-800/50 border border-primary-700/50 backdrop-blur-sm">
                 <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></div>
                 <span className="text-sm text-primary-100">AI-Powered Search</span>
+                <BetaBadge />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white">
                 RFP Finder
@@ -70,6 +72,7 @@ export function RFPFinderPage() {
               <p className="text-lg text-primary-200 max-w-xl">
                 Search and discover relevant RFPs across multiple platforms with intelligent matching
               </p>
+              <BetaMessage />
               <div className="flex items-center gap-4 pt-2">
                 <div className="flex items-center space-x-2 text-sm text-primary-200">
                   <svg className="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,5 +1,4 @@
 import { GEMINI_API_KEY, GEMINI_ENDPOINTS } from '../utils/env';
-import { toast } from '../components/Toast';
 
 /**
  * Gemini API Service
@@ -434,7 +433,6 @@ class GeminiApiService {
       
       // First pass: Find relevant chunks
       for (const batch of batches) {
-        const batchContent = batch.map(c => c.content).join('\n\n');
         const relevancePrompt = `Given the following text sections, determine if they are relevant to answering this question: "${query}"
         Only respond with "RELEVANT" or "NOT RELEVANT" for each section.
         

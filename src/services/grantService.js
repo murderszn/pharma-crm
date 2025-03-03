@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const TAVILY_API_KEY = process.env.REACT_APP_TAVILY_API_KEY;
+const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
 
 const grantWebsites = {
     // Government Grants
@@ -67,8 +69,59 @@ const grantWebsites = {
 
 const grantWebsitesList = Object.values(grantWebsites);
 
+// Enhanced grant analysis function
+const analyzeGrantOpportunity = async (grantContent) => {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    
+    const analysisPrompt = `Analyze this grant opportunity and provide a structured assessment with the following information:
+    1. Time Relevance: Is this grant currently active? What are the key dates?
+    2. Grant Amount: What is the confirmed funding amount or range?
+    3. Validity Score (0-100): Based on the source credibility and completeness of information
+    4. Requirements Analysis: Key eligibility criteria and requirements
+    5. Application Complexity (Low/Medium/High): Based on requirements and process
+    6. Success Probability (Low/Medium/High): Based on competition level and requirements match
+
+    Grant Content:
+    ${grantContent}
+
+    Provide the analysis in JSON format with these exact keys:
+    {
+      "timeRelevance": { "isActive": boolean, "deadline": string, "startDate": string },
+      "grantAmount": { "min": number, "max": number, "isConfirmed": boolean },
+      "validityScore": number,
+      "requirements": string[],
+      "applicationComplexity": string,
+      "successProbability": string,
+      "reasoning": string
+    }`;
+
+    const result = await model.generateContent(analysisPrompt);
+    const analysisText = result.response.text();
+    
+    try {
+      // Parse the JSON response
+      const analysis = JSON.parse(analysisText.substring(
+        analysisText.indexOf('{'),
+        analysisText.lastIndexOf('}') + 1
+      ));
+      return analysis;
+    } catch (parseError) {
+      console.error('Error parsing grant analysis:', parseError);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error analyzing grant:', error);
+    return null;
+  }
+};
+
 export const searchGrants = async (searchTerm) => {
     try {
+        if (!TAVILY_API_KEY) {
+            throw new Error('Tavily API key is not configured');
+        }
+
         const response = await axios.post('https://api.tavily.com/search', {
             query: `grant funding opportunities for ${searchTerm}`,
             include_domains: grantWebsitesList,
@@ -76,18 +129,84 @@ export const searchGrants = async (searchTerm) => {
             search_depth: "advanced"
         });
 
-        return response.data.results.map(result => ({
-            title: result.title,
-            url: result.url,
-            description: result.content,
-            source: result.url,
-            // Add estimated grant amount if found in the content
-            estimatedAmount: extractGrantAmount(result.content)
+        if (!response.data || !response.data.results || response.data.results.length === 0) {
+            return [];
+        }
+
+        const results = await Promise.all(response.data.results.map(async result => {
+            try {
+                // Analyze each grant opportunity
+                const analysis = await analyzeGrantOpportunity(result.content).catch(() => null);
+                
+                return {
+                    title: result.title,
+                    url: result.url,
+                    description: result.content,
+                    source: result.url,
+                    estimatedAmount: extractGrantAmount(result.content),
+                    analysis: analysis,
+                    // Calculate relevance score based on analysis
+                    relevanceScore: analysis ? calculateRelevanceScore(analysis) : 0
+                };
+            } catch (analysisError) {
+                console.error('Error analyzing grant:', analysisError);
+                // Return basic result without analysis if analysis fails
+                return {
+                    title: result.title,
+                    url: result.url,
+                    description: result.content,
+                    source: result.url,
+                    estimatedAmount: extractGrantAmount(result.content),
+                    analysis: null,
+                    relevanceScore: 0
+                };
+            }
         }));
+
+        // Filter and sort results, but don't require analysis to be present
+        return results
+            .filter(result => result && result.title && result.url)
+            .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
     } catch (error) {
         console.error('Error searching grants:', error);
-        throw error;
+        
+        // Provide specific error messages based on the error type
+        if (error.response?.status === 429 || error.message.includes('quota')) {
+            throw new Error('API rate limit exceeded. Please try again in a few minutes.');
+        } else if (error.message.includes('API key')) {
+            throw new Error('Grant search is temporarily unavailable. Please check back later.');
+        } else if (!navigator.onLine) {
+            throw new Error('No internet connection. Please check your network and try again.');
+        } else {
+            throw new Error('Unable to search for grants at this time. Please try again later.');
+        }
     }
+};
+
+// Helper function to calculate overall relevance score
+const calculateRelevanceScore = (analysis) => {
+    const weights = {
+        validityScore: 0.4,
+        timeRelevance: 0.3,
+        successProbability: 0.3
+    };
+
+    let score = analysis.validityScore * weights.validityScore;
+
+    // Add time relevance score
+    if (analysis.timeRelevance.isActive) {
+        score += 100 * weights.timeRelevance;
+    }
+
+    // Add success probability score
+    const probabilityScores = {
+        'High': 100,
+        'Medium': 60,
+        'Low': 30
+    };
+    score += (probabilityScores[analysis.successProbability] || 0) * weights.successProbability;
+
+    return Math.round(score);
 };
 
 // Helper function to extract potential grant amounts from content

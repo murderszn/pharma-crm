@@ -8,7 +8,6 @@ export function RFPManager() {
   const [companyInfo, setCompanyInfo] = useState('');
   const [generatedResponse, setGeneratedResponse] = useState({});
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeSection, setActiveSection] = useState(null);
   const [selectedSections, setSelectedSections] = useState(new Set());
 
   const rfpSections = [
@@ -65,7 +64,6 @@ export function RFPManager() {
   ];
 
   const handleSectionClick = (section) => {
-    setActiveSection(section);
     const updatedSections = new Set(selectedSections);
     if (updatedSections.has(section.id)) {
       updatedSections.delete(section.id);

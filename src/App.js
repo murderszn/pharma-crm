@@ -43,7 +43,7 @@ function PrivateRoute({ children }) {
   );
 }
 
-function AppContent() {
+export function AppContent() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
