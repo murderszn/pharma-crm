@@ -19,7 +19,8 @@ export function SocialMediaManager() {
     { value: 'facebook', label: 'Facebook', icon: 'M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z' },
     { value: 'instagram', label: 'Instagram', icon: 'M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153a4.908 4.908 0 0 1 1.153 1.772c.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772 4.915 4.915 0 0 1-1.772 1.153c-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2z' },
     { value: 'twitter', label: 'X (Twitter)', icon: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
-    { value: 'blog', label: 'Blog Post', icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z' }
+    { value: 'blog', label: 'Blog Post', icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z' },
+    { value: 'newsletter', label: 'Newsletter', icon: 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75' }
   ];
 
   const voiceOptions = [
@@ -97,8 +98,10 @@ export function SocialMediaManager() {
         - Instagram: Visual, emotive, hashtag-friendly
         - Twitter: Concise, trending topics
         - Blog: Detailed, informative, SEO-friendly
+        - Newsletter: Email-optimized, compelling subject line, clear sections, strong CTA
         
-        Include appropriate formatting, emojis, and calls to action for ${platform}.`;
+        Include appropriate formatting, emojis, and calls to action for ${platform}.
+        ${platform === 'newsletter' ? 'For newsletter, include a subject line prefixed with "Subject:" on the first line.' : ''}`;
 
         const response = await geminiApi.generateText(prompt);
         
@@ -167,17 +170,22 @@ export function SocialMediaManager() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Modern SaaS Header */}
-      <div className="relative mb-8 p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl overflow-hidden">
+      <div className="relative mb-8 p-8 rounded-3xl bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 shadow-2xl overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-          <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-200/10 to-transparent"></div>
-          <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200/10 to-transparent"></div>
+          {/* Modern grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          
+          {/* Top and bottom subtle lines */}
+          <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-400/20 to-transparent"></div>
+          <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary-400/20 to-transparent"></div>
+          
+          {/* Glowing orbs */}
           <div className="absolute -left-48 -top-48 h-96 w-96">
-            <div className="absolute inset-0 rotate-45 translate-x-1/2 translate-y-1/2 bg-gradient-conic from-cyan-500/70 via-blue-500/25 to-purple-500/70 blur-xl opacity-30"></div>
+            <div className="absolute inset-0 rotate-45 translate-x-1/2 translate-y-1/2 bg-gradient-conic from-primary-500/40 via-primary-300/10 to-primary-400/40 blur-xl opacity-30"></div>
           </div>
           <div className="absolute -right-48 -bottom-48 h-96 w-96">
-            <div className="absolute inset-0 rotate-45 translate-x-1/2 translate-y-1/2 bg-gradient-conic from-indigo-500/70 via-purple-500/25 to-pink-500/70 blur-xl opacity-30"></div>
+            <div className="absolute inset-0 rotate-45 translate-x-1/2 translate-y-1/2 bg-gradient-conic from-primary-400/40 via-primary-300/10 to-primary-500/40 blur-xl opacity-30"></div>
           </div>
         </div>
 
@@ -185,44 +193,44 @@ export function SocialMediaManager() {
         <div className="relative">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-4">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                <span className="text-sm text-slate-200">AI-Powered Content</span>
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-800/50 border border-primary-700/50 backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></div>
+                <span className="text-sm text-primary-100">AI-Powered Content</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-200/90 via-slate-100 to-slate-200/90">
+              <h1 className="text-4xl md:text-5xl font-bold text-white">
                 Social Media Manager
               </h1>
-              <p className="text-lg text-slate-400 max-w-xl">
-                Create engaging social media content with AI-powered suggestions and smart content generation
+              <p className="text-lg text-primary-200 max-w-xl">
+                Create, schedule, and manage your social media content with AI assistance
               </p>
               <div className="flex items-center gap-4 pt-2">
-                <div className="flex items-center space-x-2 text-sm text-slate-400">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center space-x-2 text-sm text-primary-200">
+                  <svg className="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>Multi-Platform</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-slate-400">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center space-x-2 text-sm text-primary-200">
+                  <svg className="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Smart Templates</span>
+                  <span>Smart Scheduling</span>
                 </div>
               </div>
             </div>
             
             <div className="hidden lg:block">
               <div className="relative group">
-                <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative flex items-center space-x-4 bg-slate-800/50 backdrop-blur-xl px-6 py-4 rounded-xl border border-slate-700/50">
+                <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-primary-400/20 via-primary-300/20 to-primary-500/20 blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative flex items-center space-x-4 bg-primary-800/50 backdrop-blur-xl px-6 py-4 rounded-xl border border-primary-700/50">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="text-2xl font-bold text-slate-200">5+</div>
-                    <div className="text-xs text-slate-400">Platforms</div>
+                    <div className="text-2xl font-bold text-white">5+</div>
+                    <div className="text-xs text-primary-300">Platforms</div>
                   </div>
-                  <div className="w-px h-12 bg-slate-700/50"></div>
+                  <div className="w-px h-12 bg-primary-700/50"></div>
                   <div className="flex flex-col items-center justify-center">
-                    <div className="text-2xl font-bold text-slate-200">AI</div>
-                    <div className="text-xs text-slate-400">Powered</div>
+                    <div className="text-2xl font-bold text-primary-400">24/7</div>
+                    <div className="text-xs text-primary-300">Scheduling</div>
                   </div>
                 </div>
               </div>

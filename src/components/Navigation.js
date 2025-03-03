@@ -113,7 +113,7 @@ export function Navigation() {
               </button>
 
               {/* Dropdown Menu */}
-              <div className="absolute right-0 w-48 mt-2 origin-top-right bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out">
+              <div className="absolute right-0 w-48 mt-2 origin-top-right bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out z-[100] border border-gray-100">
                 <div className="py-1">
                   <NavLink
                     to="/settings"

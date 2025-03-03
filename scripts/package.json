@@ -1,0 +1,12 @@
+{
+  "name": "asset-generator",
+  "version": "1.0.0",
+  "description": "Generate image assets from SVG logo",
+  "private": true,
+  "scripts": {
+    "generate": "node generate-assets.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.2"
+  }
+} 

@@ -1,15 +1,40 @@
 {
-  "short_name": "TechBox",
-  "name": "TechBox - Your Intelligent Business Suite",
+  "short_name": "Aurablox",
+  "name": "Aurablox - AI-Powered Enterprise Solutions",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "maskable_icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "description": "Transform your business with Aurablox's suite of AI-powered tools for grant management, RFP handling, and social media automation.",
+  "categories": ["business", "productivity", "artificial intelligence"],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "type": "image/png",
+      "sizes": "1280x720"
+    }
+  ]
 } 
