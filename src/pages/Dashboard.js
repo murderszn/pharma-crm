@@ -32,6 +32,11 @@ export function Dashboard() {
       description: "Manage customer interactions and relationships effectively",
       apps: ['salesforce', 'hubspot', 'zendesk', 'donor-crm']
     },
+    data: {
+      title: "Data & Analytics",
+      description: "Powerful tools for data processing, analytics, and visualization",
+      apps: ['databricks', 'snowflake', 'tableau', 'sigma']
+    },
     erp: {
       title: "Enterprise Resource Planning",
       description: "Comprehensive business process management solutions",
@@ -279,10 +284,59 @@ export function Dashboard() {
     }
   ];
 
-  // Update applications array to include additional apps
+  // Add new data & analytics applications
+  const dataApps = [
+    {
+      id: 'databricks',
+      name: 'Databricks',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+        </svg>
+      ),
+      description: 'Unified analytics platform for large-scale data engineering and collaborative data science',
+      highlight: true
+    },
+    {
+      id: 'snowflake',
+      name: 'Snowflake',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
+        </svg>
+      ),
+      description: 'Cloud data platform for storage, processing, and analytics at enterprise scale',
+      highlight: true
+    },
+    {
+      id: 'tableau',
+      name: 'Tableau',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+      ),
+      description: 'Interactive data visualization and business intelligence platform',
+      highlight: true
+    },
+    {
+      id: 'sigma',
+      name: 'Sigma Computing',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+        </svg>
+      ),
+      description: 'Cloud-native analytics and business intelligence for modern data teams',
+      highlight: false
+    }
+  ];
+
+  // Update applications array to include data apps
   const applications = [
     ...newApps,
     ...additionalApps,
+    ...dataApps,
     // ... existing applications ...
   ];
 
@@ -301,7 +355,11 @@ export function Dashboard() {
     'ms-teams': 'Connect with your team through chat, meetings, and collaboration tools',
     'outlook-online': 'Access your email, calendar, and contacts through Microsoft Outlook',
     'slack': 'Real-time messaging, file sharing, and team collaboration platform',
-    'social-media-manager': 'Create and manage social media content with AI assistance across multiple platforms'
+    'social-media-manager': 'Create and manage social media content with AI assistance across multiple platforms',
+    'databricks': 'Unified analytics platform for data engineering and collaborative data science',
+    'snowflake': 'Cloud data platform for enterprise-scale data storage and analytics',
+    'tableau': 'Create interactive visualizations and dashboards for data-driven insights',
+    'sigma': 'Modern cloud analytics platform for exploring and visualizing data'
   };
 
   const handleAppClick = (appId, appName) => {
@@ -332,7 +390,11 @@ export function Dashboard() {
       'sharepoint': 'https://www.office.com/launch/sharepoint',
       'teams': 'https://teams.microsoft.com',
       'outlook': 'https://outlook.office.com',
-      'slack': 'https://slack.com/signin'
+      'slack': 'https://slack.com/signin',
+      'databricks': 'https://databricks.com/login',
+      'snowflake': 'https://app.snowflake.com',
+      'tableau': 'https://online.tableau.com',
+      'sigma': 'https://app.sigmacomputing.com/login'
     };
 
     if (appUrls[appId]) {

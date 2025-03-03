@@ -24,20 +24,20 @@ export function SocialMediaManager() {
   ];
 
   const voiceOptions = [
-    { value: 'professional', label: 'Professional' },
-    { value: 'casual', label: 'Casual & Friendly' },
-    { value: 'formal', label: 'Formal & Corporate' },
-    { value: 'innovative', label: 'Innovative & Tech-Savvy' },
-    { value: 'educational', label: 'Educational & Informative' }
+    { value: 'conversational', label: 'Conversational & Authentic' },
+    { value: 'friendly', label: 'Warm & Friendly' },
+    { value: 'expert', label: 'Expert & Approachable' },
+    { value: 'storyteller', label: 'Engaging Storyteller' },
+    { value: 'community', label: 'Community-Focused' }
   ];
 
   const contentTypeOptions = [
-    { value: 'thought_leadership', label: 'Thought Leadership' },
-    { value: 'product_update', label: 'Product/Service Update' },
-    { value: 'industry_news', label: 'Industry News & Trends' },
-    { value: 'company_culture', label: 'Company Culture' },
-    { value: 'event_promotion', label: 'Event Promotion' },
-    { value: 'customer_story', label: 'Customer Success Story' }
+    { value: 'story', label: 'Personal Story or Experience' },
+    { value: 'insight', label: 'Helpful Insight or Tip' },
+    { value: 'discussion', label: 'Conversation Starter' },
+    { value: 'behind_scenes', label: 'Behind the Scenes' },
+    { value: 'celebration', label: 'Team or Customer Celebration' },
+    { value: 'learning', label: 'Learning or Growth Moment' }
   ];
 
   const objectiveOptions = [
@@ -83,25 +83,33 @@ export function SocialMediaManager() {
       const newPosts = [];
 
       for (const platform of selectedPlatforms) {
-        const prompt = `Create a ${platform} post about: ${postInput}
-        
-        Content Specifications:
-        - Brand Voice: ${brandVoice}
-        - Content Type: ${contentType}
-        - Target Audience: ${targetAudience}
-        - Key Objectives: ${keyObjectives.join(', ')}
-        - Custom Hashtags: ${customHashtags}
-        
-        Platform Guidelines:
-        - LinkedIn: Professional, industry insights
-        - Facebook: Conversational, community-focused
-        - Instagram: Visual, emotive, hashtag-friendly
-        - Twitter: Concise, trending topics
-        - Blog: Detailed, informative, SEO-friendly
-        - Newsletter: Email-optimized, compelling subject line, clear sections, strong CTA
-        
-        Include appropriate formatting, emojis, and calls to action for ${platform}.
-        ${platform === 'newsletter' ? 'For newsletter, include a subject line prefixed with "Subject:" on the first line.' : ''}`;
+        const prompt = `Create a natural, conversational ${platform} post about: ${postInput}
+
+        Personality Guide:
+        - Write as a real person sharing authentic thoughts and experiences
+        - Use a ${brandVoice} tone that feels genuine and relatable
+        - Focus on ${contentType.replace('_', ' ')} in a way that resonates with ${targetAudience}
+        - Aim to ${keyObjectives.join(' and ')} through authentic connection
+        - Include relevant hashtags naturally: ${customHashtags}
+
+        Key Elements:
+        - Start with a hook that draws people in naturally
+        - Share genuine thoughts or experiences
+        - Ask questions to encourage real conversation
+        - Use natural language and avoid corporate speak
+        - Include emojis sparingly and authentically
+        - End with an engaging question or genuine call to action
+
+        Platform-Specific Style:
+        - LinkedIn: Professional but human, share real experiences
+        - Facebook: Friendly and community-focused, like talking to friends
+        - Instagram: Authentic and relatable, focus on storytelling
+        - Twitter: Casual and conversational, join the discussion naturally
+        - Blog: Personal and detailed, like having a deep conversation
+        - Newsletter: Friendly and direct, like writing to a friend
+
+        Make it feel like a real person is sharing their thoughts, not a brand pushing content.
+        ${platform === 'newsletter' ? 'For newsletter, include a personal, engaging subject line prefixed with "Subject:" on the first line.' : ''}`;
 
         const response = await geminiApi.generateText(prompt);
         
@@ -119,7 +127,7 @@ export function SocialMediaManager() {
 
       if (newPosts.length > 0) {
         setGeneratedPosts([...newPosts, ...generatedPosts]);
-        toast.success(`Generated posts for ${newPosts.length} platform(s)!`);
+        toast.success(`Generated authentic posts for ${newPosts.length} platform(s)!`);
       }
     } catch (error) {
       console.error('Error generating posts:', error);
