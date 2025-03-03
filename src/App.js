@@ -18,6 +18,7 @@ import { AIAssistant } from './components/AIAssistant';
 import { settingsService } from './services/settingsService';
 import { ContactSales } from './pages/ContactSales';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { PowerPointGenerator } from './pages/PowerPointGenerator';
 
 function ScrollToTop() {
   useScrollToTop();
@@ -154,6 +155,11 @@ function AppContent() {
         <Route path="/contact-sales" element={
           <PrivateRoute>
             <ContactSales />
+          </PrivateRoute>
+        } />
+        <Route path="/powerpoint-generator" element={
+          <PrivateRoute>
+            <PowerPointGenerator />
           </PrivateRoute>
         } />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
