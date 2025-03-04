@@ -359,6 +359,135 @@ export function Dashboard() {
     }
   ];
 
+  // Add brand colors for enterprise applications
+  const brandColors = {
+    'salesforce': {
+      from: '#00A1E0',
+      via: '#1589EE',
+      to: '#0B5CAB'
+    },
+    'hubspot': {
+      from: '#FF7A59',
+      via: '#FF5C41',
+      to: '#FF4222'
+    },
+    'zendesk': {
+      from: '#03363D',
+      via: '#03565F',
+      to: '#03363D'
+    },
+    'sap-erp': {
+      from: '#0FAAFF',
+      via: '#0076CB',
+      to: '#003366'
+    },
+    'netsuite': {
+      from: '#7F00FF',
+      via: '#5A00B3',
+      to: '#3D0099'
+    },
+    'dynamics-365': {
+      from: '#002050',
+      via: '#0078D4',
+      to: '#002050'
+    },
+    'asana': {
+      from: '#F06A6A',
+      via: '#FC636B',
+      to: '#F06A6A'
+    },
+    'jira': {
+      from: '#0052CC',
+      via: '#0065FF',
+      to: '#0052CC'
+    },
+    'monday': {
+      from: '#FF3D57',
+      via: '#FF7A8A',
+      to: '#FF3D57'
+    },
+    'workday': {
+      from: '#0875E1',
+      via: '#00A0DF',
+      to: '#0875E1'
+    },
+    'bamboohr': {
+      from: '#7BC142',
+      via: '#8ED246',
+      to: '#7BC142'
+    },
+    'aws': {
+      from: '#FF9900',
+      via: '#FFAC31',
+      to: '#FF9900'
+    },
+    'azure': {
+      from: '#0078D4',
+      via: '#50E6FF',
+      to: '#0078D4'
+    },
+    'gcp': {
+      from: '#4285F4',
+      via: '#34A853',
+      to: '#FBBC05'
+    },
+    'databricks': {
+      from: '#FF3621',
+      via: '#FF5C41',
+      to: '#FF3621'
+    },
+    'snowflake': {
+      from: '#29B5E8',
+      via: '#6BDDFF',
+      to: '#29B5E8'
+    },
+    'tableau': {
+      from: '#E97627',
+      via: '#F9A14D',
+      to: '#E97627'
+    },
+    'sigma': {
+      from: '#5340FF',
+      via: '#7D6EFF',
+      to: '#5340FF'
+    },
+    'microsoft-365': {
+      from: '#D83B01',
+      via: '#EA4300',
+      to: '#D83B01'
+    },
+    'google-workspace': {
+      from: '#4285F4',
+      via: '#34A853',
+      to: '#FBBC05'
+    },
+    'zoom': {
+      from: '#2D8CFF',
+      via: '#4A9DFF',
+      to: '#2D8CFF'
+    },
+    'dropbox': {
+      from: '#0061FF',
+      via: '#0062FE',
+      to: '#0160FE'
+    },
+    'wordpress': {
+      from: '#21759B',
+      via: '#1E8CBE',
+      to: '#21759B'
+    },
+    'teams': {
+      from: '#6264A7',
+      via: '#7B83EB',
+      to: '#6264A7'
+    },
+    'slack': {
+      from: '#4A154B',
+      via: '#611F69',
+      to: '#4A154B'
+    }
+  };
+
   // Update applications array to include collaboration apps
   const applications = [
     ...newApps,
@@ -369,8 +498,6 @@ export function Dashboard() {
   ];
 
   const tooltips = {
-    'rfp-finder': 'Use AI to find and filter RFP opportunities that match your nonprofit\'s mission',
-    'rfp-manager': 'Generate and manage RFP responses with AI assistance',
     'grant-finder': 'Discover grants tailored to your organization\'s programs',
     'grant-writer': 'Get AI help writing compelling grant proposals',
     'donor-crm': 'Comprehensive donor relationship management and engagement tracking',
@@ -399,9 +526,7 @@ export function Dashboard() {
     const internalRoutes = {
       'ai-toybox': '/ai-toybox',
       'grant-writer': '/grant-writer',
-      'rfp-finder': '/rfp-finder',
       'grant-finder': '/grant-finder',
-      'rfp-manager': '/rfp-manager',
       'social-media-manager': '/social-media-manager',
       'powerpoint-generator': '/powerpoint-generator'
     };
@@ -727,29 +852,6 @@ export function Dashboard() {
       isAI: true
     },
     {
-      id: 'rfp-finder',
-      name: 'RFP Finder',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12" />
-        </svg>
-      ),
-      description: 'Use AI to find and filter RFP opportunities that match your nonprofit\'s mission',
-      isAI: true,
-      isBeta: true
-    },
-    {
-      id: 'rfp-manager',
-      name: 'RFP Manager',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15" />
-        </svg>
-      ),
-      description: 'Generate and manage RFP responses with AI assistance',
-      isAI: true
-    },
-    {
       id: 'social-media-manager',
       name: 'Social Media Manager',
       icon: (
@@ -798,21 +900,38 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 fade-in">
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-        <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name}</h1>
-        <p className="text-gray-600 mt-1">Access all your enterprise applications from one place</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 fade-in">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
+            <span className="mr-2">Welcome, {user?.name}</span>
+            <span className="inline-flex items-center justify-center w-2 h-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+            </span>
+          </h1>
+          <p className="text-gray-600 mt-1">Access all your enterprise applications from one place</p>
         </div>
-        <button
-          onClick={() => setShowQuickStart(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Quick Start Guide
-        </button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => setShowQuickStart(true)}
+            className="flex flex-1 sm:flex-auto items-center justify-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Quick Start Guide
+          </button>
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="flex flex-1 sm:flex-auto items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            Calendar
+          </button>
+        </div>
       </div>
 
       <QuickStartGuide 
@@ -821,14 +940,14 @@ export function Dashboard() {
       />
       
       {/* Featured AI Apps Section */}
-      <div className="mb-12">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+      <div className="mb-8 sm:mb-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
           </svg>
           Featured AI Apps
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {featuredAiApps.map((app) => (
           <div
             key={app.id}
@@ -838,12 +957,12 @@ export function Dashboard() {
               {/* Holographic outline effect */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-300 via-primary-400/50 to-primary-600 rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
               
-              <div className="relative flex items-center space-x-5 bg-white p-8 rounded-xl border border-gray-200/50 hover:border-primary-500/50 transition-all duration-200 min-h-[200px]">
-                <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center rounded-lg bg-primary-500/10 text-primary-600">
+              <div className="relative flex items-center space-x-5 bg-white p-6 sm:p-8 rounded-xl border border-gray-200/50 hover:border-primary-500/50 transition-all duration-200 min-h-[180px] sm:min-h-[200px] shadow-sm hover:shadow-md">
+                <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-lg bg-primary-500/10 text-primary-600">
                   {app.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-primary-600 transition-colors flex items-center">
+                  <h3 className="text-lg sm:text-xl font-medium text-gray-900 group-hover:text-primary-600 transition-colors flex items-center">
                     {app.name}
                     {app.isBeta && <BetaBadge className="ml-2" />}
                   </h3>
@@ -864,39 +983,51 @@ export function Dashboard() {
 
       {/* Application Categories */}
       {Object.entries(categories).map(([key, category]) => (
-        <div key={key} className="mb-12">
-          <div className="mb-6">
+        <div key={key} className="mb-8 sm:mb-12">
+          <div className="mb-4 sm:mb-6">
             <h2 className="text-xl font-semibold text-gray-900">{category.title}</h2>
             <p className="text-gray-600 mt-1">{category.description}</p>
           </div>
           
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {applications
               .filter(app => category.apps.includes(app.id))
               .map((app) => (
                 <div
                   key={app.id}
-                  className={`app-icon group relative flex flex-col p-8 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 min-h-[240px] ${app.isAI ? 'ai-enabled' : ''}`}
+                  className="relative group cursor-pointer"
                   onClick={() => handleAppClick(app.id, app.name)}
                   onMouseEnter={() => setActiveTooltip(app.id)}
                   onMouseLeave={() => setActiveTooltip(null)}
                 >
-                  <div className="text-primary-600 group-hover:text-primary-700 mb-4">
-                    {app.icon}
-                  </div>
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">{app.name}</h3>
-                  <p className="text-sm text-gray-600 flex-grow line-clamp-3">{app.description}</p>
-                  {app.isAI && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800 absolute top-4 right-4">
-                      Gen AI
-                    </span>
+                  {/* Brand-colored aura effect for enterprise apps */}
+                  {brandColors[app.id] && (
+                    <div 
+                      className="absolute -inset-0.5 rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"
+                      style={{
+                        background: `linear-gradient(120deg, ${brandColors[app.id].from}, ${brandColors[app.id].via}, ${brandColors[app.id].to})`
+                      }}
+                    ></div>
                   )}
-                  {activeTooltip === app.id && tooltips[app.id] && (
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 w-64">
-                      {tooltips[app.id]}
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                  
+                  <div className={`relative flex flex-col p-6 sm:p-8 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 min-h-[200px] sm:min-h-[240px] ${app.isAI ? 'ai-enabled' : ''}`}>
+                    <div className="text-primary-600 group-hover:text-primary-700 mb-4 transform group-hover:scale-110 transition-transform duration-200">
+                      {app.icon}
                     </div>
-                  )}
+                    <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{app.name}</h3>
+                    <p className="text-sm text-gray-600 flex-grow line-clamp-3">{app.description}</p>
+                    {app.isAI && (
+                      <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-primary-100 text-primary-800 absolute top-4 right-4">
+                        Gen AI
+                      </span>
+                    )}
+                    {activeTooltip === app.id && tooltips[app.id] && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 w-64 max-w-[90vw]">
+                        {tooltips[app.id]}
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
           </div>
@@ -904,15 +1035,15 @@ export function Dashboard() {
       ))}
 
       {/* Upcoming Events Section */}
-      <div className="mt-8 mb-12">
-        <div className="flex justify-between items-center mb-6">
+      <div className="mt-8 mb-8 sm:mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">Upcoming Events</h2>
             <p className="text-gray-600 mt-1">Your schedule for the next few weeks</p>
           </div>
           <button
             onClick={() => setShowCalendar(true)}
-            className="flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100"
+            className="flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors duration-200 w-full sm:w-auto justify-center sm:justify-start"
           >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -921,44 +1052,59 @@ export function Dashboard() {
             </button>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
           <div className="divide-y divide-gray-100">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
-                      {getEventIcon(event.type)}
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+                        {getEventIcon(event.type)}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {event.title}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {event.title}
+                        </p>
+                        <span className={`event-badge`} data-type={event.type}>
+                          {event.type}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {event.startDate && event.endDate 
+                          ? formatDateRange(event.startDate, event.endDate)
+                          : formatDate(event.date, event.time)}
                       </p>
-                      <span className={`event-badge`} data-type={event.type}>
-                        {event.type}
-                      </span>
+                      <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                        {event.description}
+                      </p>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {event.startDate && event.endDate 
-                        ? formatDateRange(event.startDate, event.endDate)
-                        : formatDate(event.date, event.time)}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                      {event.description}
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button className="text-gray-400 hover:text-gray-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                      </svg>
-                    </button>
+                    <div className="flex-shrink-0">
+                      <button className="text-gray-400 hover:text-gray-500 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-          </div>
-        ))}
+              ))
+            ) : (
+              <div className="p-8 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                <p className="mt-4 text-gray-500">No upcoming events</p>
+                <button 
+                  onClick={() => setShowCalendar(true)}
+                  className="mt-4 inline-flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors duration-200"
+                >
+                  Connect Calendar
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

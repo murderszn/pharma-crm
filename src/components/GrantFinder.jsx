@@ -1,150 +1,255 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useTable, useSortBy, useFilters } from 'react-table';
+import { toast } from '../components/Toast';
 import { searchGrants, defaultGrantCategories } from '../services/grantService';
+import { writeGrant } from '../services/grantWritingService';
+import { BetaBadge } from '../components/BetaDisclaimer';
+import { useNavigate } from 'react-router-dom';
 
-const GrantFinder = () => {
+export function GrantFinder() {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [requirementsModal, setRequirementsModal] = useState({ isOpen: false, content: '', title: '', description: '' });
+    
+    const navigate = useNavigate();
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        const term = searchTerm.trim();
-        if (!term) {
-            setError('Please enter a search term or select a category.');
-            return;
-        }
-
         setLoading(true);
         setError(null);
-        setResults([]);
 
         try {
-            const searchResults = await searchGrants(term);
+            const searchResults = await searchGrants(searchTerm);
             setResults(searchResults);
-            if (searchResults.length === 0) {
-                setError('No grants found. Try different keywords or select a category from above.');
-            }
         } catch (err) {
-            // Handle specific error messages from the service
-            setError(err.message || 'Failed to search grants. Please try again later.');
-            setResults([]);
+            setError(err.message);
+            toast.error(err.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCategorySelect = async (category) => {
-        setSearchTerm(category);
-        setSelectedCategory(category);
-        
-        // Automatically trigger search when category is selected
-        setLoading(true);
-        setError(null);
-        setResults([]);
-
+    const handleWriteGrant = async (grant) => {
         try {
-            const searchResults = await searchGrants(category);
-            setResults(searchResults);
-            if (searchResults.length === 0) {
-                setError('No grants found for this category. Please try a different category or search term.');
+            toast.info('Analyzing grant requirements...');
+            
+            const requirements = `
+Organization Requirements:
+- Organization Type: ${grant.analysis?.organizationType || 'Not specified'}
+- Eligibility Criteria: ${grant.analysis?.eligibility || 'Not specified'}
+- Track Record: ${grant.analysis?.trackRecord || 'Not specified'}
+
+Project Requirements:
+- Focus Area: ${grant.analysis?.focusArea || grant.title}
+- Grant Amount: ${grant.analysis?.grantAmount?.max ? `$${grant.analysis.grantAmount.max.toLocaleString()}` : 'Not specified'}
+- Timeline: ${grant.analysis?.timeRelevance?.deadline || 'Not specified'}
+- Project Scope: ${grant.description || 'Not specified'}
+
+Key Deliverables:
+${grant.analysis?.deliverables?.map(d => `- ${d}`).join('\n') || '- To be determined based on project goals\n- Must align with grant objectives\n- Should demonstrate measurable impact'}
+
+Additional Notes:
+- Status: ${grant.analysis?.timeRelevance?.isActive ? 'Active' : 'Inactive'}
+- Validity Score: ${grant.analysis?.validityScore || 'N/A'}
+            `;
+            
+            setRequirementsModal({
+                isOpen: true,
+                content: requirements,
+                title: grant.title,
+                description: grant.description
+            });
+            
+        } catch (error) {
+            toast.error('Failed to analyze grant requirements');
+            console.error('Error:', error);
+        }
+    };
+
+    // Table columns configuration
+    const columns = useMemo(() => [
+        {
+            Header: 'Title',
+            accessor: 'title',
+            Cell: ({ row }) => (
+                <div className="max-w-md">
+                    <a href={row.original.url} className="text-primary-600 hover:text-primary-800 font-medium">
+                        {row.original.title}
+                    </a>
+                    <p className="text-sm text-gray-500 truncate">{row.original.description}</p>
+                    {row.original.analysis?.timeRelevance?.isActive && (
+                        <div className="mt-1 flex items-center">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Active
+                            </span>
+                            {row.original.analysis?.timeRelevance?.deadline && (
+                                <span className="ml-2 text-xs text-gray-500">
+                                    Due: {new Date(row.original.analysis.timeRelevance.deadline).toLocaleDateString()}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )
+        },
+        {
+            Header: 'Amount',
+            accessor: 'analysis.grantAmount.max',
+            Cell: ({ value }) => value ? `$${value.toLocaleString()}` : 'N/A',
+            sortType: 'number'
+        },
+        {
+            Header: 'Deadline',
+            accessor: 'analysis.timeRelevance.deadline',
+            Cell: ({ value, row }) => {
+                if (!value) return 'N/A';
+                const deadline = new Date(value);
+                const now = new Date();
+                const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                
+                return (
+                    <div className="flex flex-col">
+                        <span>{deadline.toLocaleDateString()}</span>
+                        {daysUntil > 0 && (
+                            <span className={`text-xs ${
+                                daysUntil <= 14 ? 'text-red-600' :
+                                daysUntil <= 30 ? 'text-orange-600' :
+                                'text-green-600'
+                            }`}>
+                                {daysUntil} days left
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+            sortType: (rowA, rowB) => {
+                const a = rowA.original.analysis?.timeRelevance?.deadline;
+                const b = rowB.original.analysis?.timeRelevance?.deadline;
+                if (!a && !b) return 0;
+                if (!a) return 1;
+                if (!b) return -1;
+                return new Date(a) - new Date(b);
             }
-        } catch (err) {
-            setError(err.message || 'Failed to search grants. Please try again later.');
-            setResults([]);
-        } finally {
-            setLoading(false);
+        },
+        {
+            Header: 'Status',
+            accessor: 'analysis.timeRelevance.isActive',
+            Cell: ({ value }) => (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                    {value ? 'Active' : 'Inactive'}
+                </span>
+            )
+        },
+        {
+            Header: 'Validity',
+            accessor: 'analysis.validityScore',
+            Cell: ({ value }) => (
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                        className="bg-primary-600 h-2.5 rounded-full"
+                        style={{ width: `${value}%` }}
+                    ></div>
+                </div>
+            )
+        },
+        {
+            Header: 'Actions',
+            Cell: ({ row }) => (
+                <div className="space-x-2">
+                    <button
+                        onClick={() => handleWriteGrant(row.original)}
+                        className="inline-flex items-center px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700"
+                    >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Requirements
+                    </button>
+                </div>
+            )
         }
-    };
+    ], []);
 
-    // Helper function to render grant status badge
-    const renderStatusBadge = (analysis) => {
-        if (!analysis) return null;
-        
-        const { timeRelevance, validityScore } = analysis;
-        let color = 'gray';
-        let text = 'Unknown';
-        
-        if (validityScore >= 80) {
-            color = timeRelevance.isActive ? 'green' : 'red';
-            text = timeRelevance.isActive ? 'Active' : 'Inactive';
-        } else if (validityScore >= 50) {
-            color = 'yellow';
-            text = 'Needs Verification';
-        }
-        
-        return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800`}>
-                {text}
-            </span>
-        );
-    };
+    // Table configurations
+    const tableConfig = useMemo(
+        () => ({
+            columns,
+            data: results,
+            initialState: {
+                sortBy: [
+                    { id: 'analysis.timeRelevance.deadline', desc: false }
+                ],
+                filters: []
+            }
+        }),
+        [columns, results]
+    );
 
-    // Helper function to render probability indicator
-    const renderProbabilityIndicator = (probability) => {
-        const colors = {
-            'High': 'green',
-            'Medium': 'yellow',
-            'Low': 'red'
-        };
-        const color = colors[probability] || 'gray';
-        
-        return (
-            <div className="flex items-center space-x-1">
-                <span className={`w-2 h-2 rounded-full bg-${color}-400`}></span>
-                <span className="text-sm text-gray-600">{probability}</span>
-            </div>
-        );
-    };
+    // Initialize table with memoized config and plugins
+    const table = useTable(
+        tableConfig,
+        useFilters,
+        useSortBy
+    );
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Grant Finder</h2>
-            
-            {/* Search Form */}
-            <form onSubmit={handleSearch} className="mb-6">
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Enter grant category or keyword..."
-                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        disabled={loading}
-                    />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Header */}
+            <div className="mb-8">
+                <div className="flex items-center">
+                    <h1 className="text-3xl font-bold text-gray-900">Grant Finder</h1>
+                    <BetaBadge className="ml-2" />
+                </div>
+                <p className="mt-2 text-gray-600">
+                    Discover and analyze grant opportunities tailored to your organization
+                </p>
+            </div>
+
+            {/* Search Section */}
+            <div className="mb-8">
+                <form onSubmit={handleSearch} className="flex gap-4">
+                    <div className="flex-1">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Enter keywords to search for grants..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                    </div>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
+                        className={`px-6 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                            loading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                     >
-                        {loading ? (
-                            <span className="flex items-center">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Searching...
-                            </span>
-                        ) : 'Search'}
+                        {loading ? 'Searching...' : 'Search'}
                     </button>
-                </div>
-            </form>
+                </form>
 
-            {/* Grant Categories */}
-            <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-3">Popular Grant Categories:</h3>
-                <div className="flex flex-wrap gap-2">
-                    {defaultGrantCategories.map((category, index) => (
+                {/* Categories */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {defaultGrantCategories.map((category) => (
                         <button
-                            key={index}
-                            onClick={() => handleCategorySelect(category)}
-                            disabled={loading}
-                            className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                            key={category}
+                            onClick={() => {
+                                setSelectedCategory(category);
+                                setSearchTerm(category);
+                            }}
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
                                 selectedCategory === category
-                                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-500'
-                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    ? 'bg-primary-100 text-primary-800'
+                                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            }`}
                         >
                             {category}
                         </button>
@@ -152,139 +257,105 @@ const GrantFinder = () => {
                 </div>
             </div>
 
-            {/* Loading State */}
-            {loading && (
-                <div className="text-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                    <p className="mt-2 text-gray-600">Searching for grants...</p>
+            {/* Error Message */}
+            {error && (
+                <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800">{error}</p>
                 </div>
             )}
 
-            {/* Error Message */}
-            {error && !loading && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                    <div className="flex items-center">
-                        <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                        {error}
+            {/* Search Results */}
+            {results.length > 0 && (
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Search Results</h2>
+                    <div className="overflow-x-auto">
+                        <table {...table.getTableProps()} className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                {table.headerGroups.map(headerGroup => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map(column => (
+                                            <th
+                                                {...column.getHeaderProps(column.getSortByToggleProps())}
+                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                            >
+                                                {column.render('Header')}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </thead>
+                            <tbody {...table.getTableBodyProps()} className="bg-white divide-y divide-gray-200">
+                                {table.rows.map(row => {
+                                    table.prepareRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map(cell => (
+                                                <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
+                                                    {cell.render('Cell')}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             )}
 
-            {/* Results */}
-            {results.length > 0 && (
-                <div className="space-y-6">
-                    <h3 className="text-xl font-semibold">Available Grants</h3>
-                    {results.map((result, index) => (
-                        <div key={index} className="border p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                            {/* Header Section */}
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h4 className="text-lg font-medium text-blue-600 hover:underline">
-                                            <a href={result.url}>
-                                                {result.title}
-                                            </a>
-                                        </h4>
-                                        {result.analysis && renderStatusBadge(result.analysis)}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                        Source: {new URL(result.source).hostname}
+            {/* Requirements Modal */}
+            {requirementsModal.isOpen && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                            <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                        </div>
+
+                        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div className="sm:flex sm:items-start">
+                                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
+                                            Grant Requirements: {requirementsModal.title}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-4">{requirementsModal.description}</p>
+                                        <div className="mt-4 bg-gray-50 p-4 rounded-lg overflow-auto max-h-[60vh]">
+                                            <pre className="whitespace-pre-wrap font-sans text-sm">
+                                                {requirementsModal.content}
+                                            </pre>
+                                        </div>
                                     </div>
                                 </div>
-                                {result.analysis?.grantAmount && (
-                                    <div className="text-right">
-                                        <div className="text-lg font-bold text-green-600">
-                                            ${result.analysis.grantAmount.min.toLocaleString()} - 
-                                            ${result.analysis.grantAmount.max.toLocaleString()}
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            {result.analysis.grantAmount.isConfirmed ? 'Confirmed Amount' : 'Estimated Amount'}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
-
-                            {/* Description */}
-                            <p className="text-gray-600 mb-4">{result.description}</p>
-
-                            {/* Analysis Section */}
-                            {result.analysis && (
-                                <div className="mt-4 pt-4 border-t border-gray-200">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {/* Dates */}
-                                        <div>
-                                            <h5 className="text-sm font-semibold text-gray-700 mb-2">Key Dates</h5>
-                                            <div className="space-y-1 text-sm">
-                                                <div>Start: {result.analysis.timeRelevance.startDate}</div>
-                                                <div>Deadline: {result.analysis.timeRelevance.deadline}</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Requirements */}
-                                        <div>
-                                            <h5 className="text-sm font-semibold text-gray-700 mb-2">Key Requirements</h5>
-                                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                                                {result.analysis.requirements.slice(0, 3).map((req, i) => (
-                                                    <li key={i}>{req}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-
-                                        {/* Metrics */}
-                                        <div>
-                                            <h5 className="text-sm font-semibold text-gray-700 mb-2">Analysis</h5>
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm text-gray-600">Validity Score:</span>
-                                                    <div className="flex items-center">
-                                                        <span className="text-sm font-medium">{result.analysis.validityScore}%</span>
-                                                        <div className="ml-2 w-20 h-2 bg-gray-200 rounded-full">
-                                                            <div 
-                                                                className="h-full bg-blue-600 rounded-full" 
-                                                                style={{width: `${result.analysis.validityScore}%`}}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm text-gray-600">Success Probability:</span>
-                                                    {renderProbabilityIndicator(result.analysis.successProbability)}
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-sm text-gray-600">Application Complexity:</span>
-                                                    <span className="text-sm">{result.analysis.applicationComplexity}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Reasoning */}
-                                    <div className="mt-4 text-sm text-gray-600">
-                                        <span className="font-medium">Analysis Notes:</span> {result.analysis.reasoning}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Actions */}
-                            <div className="mt-4 flex justify-end space-x-2">
-                                <a
-                                    href={result.url}
-                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
+                            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(requirementsModal.content);
+                                        navigate('/grant-writer');
+                                        toast.success('Requirements copied! Redirecting to Grant Writer...');
+                                    }}
+                                    className="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
                                 >
-                                    View Details
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
-                                </a>
+                                    Copy & Write Grant
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setRequirementsModal({ isOpen: false, content: '', title: '', description: '' })}
+                                    className="mt-3 sm:mt-0 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
             )}
         </div>
     );
-};
+}
 
 export default GrantFinder; 

@@ -1,5 +1,5 @@
 import React from 'react';
-import GrantFinder from '../components/GrantFinder';
+import { GrantFinder } from '../components/GrantFinder';
 import { QuickStart } from '../components/QuickStart';
 import { BetaBadge, BetaMessage } from '../components/BetaDisclaimer';
 
