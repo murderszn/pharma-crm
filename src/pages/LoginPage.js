@@ -51,7 +51,7 @@ export function LoginPage() {
             
             <div>
               <h2 className="text-4xl font-extrabold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent tracking-tight">
-                Aurablox
+                AURABLOX
               </h2>
               <p className="mt-3 text-lg text-gray-600">
                 Your Intelligent Business Suite
@@ -126,7 +126,7 @@ export function LoginPage() {
               <p>Demo credentials: any username and password will work</p>
             </div>
             <div className="mt-4 text-xs text-gray-500">
-              <p>© {new Date().getFullYear()} Aurablox. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} AURABLOX. All rights reserved.</p>
             </div>
           </div>
         </div>

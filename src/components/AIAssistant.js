@@ -333,7 +333,7 @@ export function AIAssistant() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask me anything about Aurablox..."
+                placeholder="Ask me anything about AURABLOX..."
                 className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={isLoading}
               />

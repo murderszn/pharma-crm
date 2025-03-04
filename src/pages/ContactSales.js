@@ -58,7 +58,7 @@ export function ContactSales() {
             <span className="block text-primary-600">sales team</span>
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Ready to transform your workflow? Contact us today and let's discuss how Aurablox can help your business thrive.
+            Ready to transform your workflow? Contact us today and let's discuss how AURABLOX can help your business thrive.
           </p>
         </div>
       </div>

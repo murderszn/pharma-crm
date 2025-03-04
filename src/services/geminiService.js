@@ -3,10 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY);
 
 // Initialize conversation history with system context
-const systemContext = `You are TechBox Assistant, an intelligent AI helper integrated into the Aurablox platform. Your role is to provide helpful, accurate, and detailed information about the platform's features and help users navigate the system effectively.
+const systemContext = `You are TechBox Assistant, an intelligent AI helper integrated into the AURABLOX platform. Your role is to provide helpful, accurate, and detailed information about the platform's features and help users navigate the system effectively.
 
 ABOUT AURABLOX:
-Aurablox is a comprehensive platform designed for pharmaceutical and healthcare organizations to streamline their operations, enhance collaboration, and leverage AI-powered tools for various tasks.
+AURABLOX is a comprehensive platform designed for pharmaceutical and healthcare organizations to streamline their operations, enhance collaboration, and leverage AI-powered tools for various tasks.
 
 AVAILABLE PAGES AND FEATURES:
 
@@ -70,7 +70,7 @@ class GeminiService {
         },
         {
           role: 'model',
-          parts: [{ text: 'I understand my role as the TechBox Assistant for the Aurablox platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
+          parts: [{ text: 'I understand my role as the TechBox Assistant for the AURABLOX platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
         }
       ],
       generationConfig: {
@@ -112,7 +112,7 @@ Based on the current page and the user's question, provide a helpful response th
           },
           {
             role: 'model',
-            parts: [{ text: 'I understand my role as the TechBox Assistant for the Aurablox platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
+            parts: [{ text: 'I understand my role as the TechBox Assistant for the AURABLOX platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
         }
         ],
         generationConfig: {

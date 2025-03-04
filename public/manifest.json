@@ -1,6 +1,6 @@
 {
-  "short_name": "Aurablox",
-  "name": "Aurablox - AI-Powered Enterprise Solutions",
+  "short_name": "AURABLOX",
+  "name": "AURABLOX - AI-Powered Enterprise Solutions",
   "icons": [
     {
       "src": "favicon.ico",
@@ -28,7 +28,7 @@
   "display": "standalone",
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
-  "description": "Transform your business with Aurablox's suite of AI-powered tools for grant management, RFP handling, and social media automation.",
+  "description": "Transform your business with AURABLOX's suite of AI-powered tools for grant management, RFP handling, and social media automation.",
   "categories": ["business", "productivity", "artificial intelligence"],
   "screenshots": [
     {

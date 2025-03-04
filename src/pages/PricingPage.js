@@ -10,7 +10,7 @@ export function PricingPage() {
 
   const features = {
     basic: [
-      'Access to Aurablox platform',
+      'Access to AURABLOX platform',
       'Enterprise card links',
       'Basic AI Toybox access',
       'Standard support',
@@ -19,7 +19,7 @@ export function PricingPage() {
     ],
     premium: [
       'Everything in Basic tier',
-      'Premium Aurablox AI agents',
+      'Premium AURABLOX AI agents',
       'Advanced AI Toybox features',
       'Priority support',
       'Unlimited users',
@@ -62,7 +62,7 @@ export function PricingPage() {
           <div className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <div className="mb-6 sm:mb-8">
               <h3 className="text-xl font-semibold leading-6 text-gray-900">Basic</h3>
-              <p className="mt-4 text-sm text-gray-500">Essential tools for teams getting started with Aurablox.</p>
+              <p className="mt-4 text-sm text-gray-500">Essential tools for teams getting started with AURABLOX.</p>
               <div className="mt-4">
                 <span className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">$15</span>
                 <span className="text-base font-medium text-gray-500">/user/month</span>
@@ -182,7 +182,7 @@ export function PricingPage() {
         {/* CTA Section */}
         <div className="mt-12 sm:mt-24 text-center px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Ready to transform your workflow?</h2>
-          <p className="text-lg sm:text-xl text-gray-500 mb-6 sm:mb-8">Get started with Aurablox today and experience the difference.</p>
+          <p className="text-lg sm:text-xl text-gray-500 mb-6 sm:mb-8">Get started with AURABLOX today and experience the difference.</p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <button 
               onClick={handleContactSales}
