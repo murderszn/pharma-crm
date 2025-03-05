@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-export function AppSelector({ applications, categories, onClose }) {
-  const { userPreferences, updateSelectedApps } = useAuth();
-  const [selectedApps, setSelectedApps] = useState(userPreferences.selectedApps);
+export function AppSelector({ applications, categories, selectedApps = [], onSave, onClose }) {
+  const { userPreferences } = useAuth();
+  const [selected, setSelected] = useState(selectedApps);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleAppToggle = (appId) => {
-    setSelectedApps(prev => {
+    setSelected(prev => {
       const isSelected = prev.includes(appId);
       return isSelected ? prev.filter(id => id !== appId) : [...prev, appId];
     });
   };
 
   const handleSave = () => {
-    updateSelectedApps(selectedApps);
+    onSave(selected);
     onClose();
   };
 
@@ -52,7 +52,7 @@ export function AppSelector({ applications, categories, onClose }) {
         </div>
 
         <div className="p-6 overflow-y-auto flex-grow">
-          {Object.entries(categories).map(([key, category]) => {
+          {Object.entries(categories || {}).map(([key, category]) => {
             const categoryApps = filteredApps.filter(app => 
               category.apps.includes(app.id)
             );
@@ -67,7 +67,7 @@ export function AppSelector({ applications, categories, onClose }) {
                     <div
                       key={app.id}
                       className={`relative p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
-                        selectedApps.includes(app.id)
+                        selected.includes(app.id)
                           ? 'border-primary-500 bg-primary-50'
                           : 'border-gray-200 hover:border-primary-300'
                       }`}

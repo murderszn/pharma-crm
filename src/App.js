@@ -21,6 +21,7 @@ import { useScrollToTop } from './hooks/useScrollToTop';
 import { PowerPointGenerator } from './pages/PowerPointGenerator';
 import UserGenBlox from './pages/UserGenBlox';
 import PrivateRoute from './components/PrivateRoute';
+import LandingPage from './pages/LandingPage';
 
 function ScrollToTop() {
   useScrollToTop();
@@ -69,8 +70,8 @@ export function AppContent() {
         <Route path="/contact-sales" element={<PrivateRoute><ContactSales /></PrivateRoute>} />
         <Route path="/powerpoint-generator" element={<PrivateRoute><PowerPointGenerator /></PrivateRoute>} />
         <Route path="/user-gen-blox/:type" element={<PrivateRoute><UserGenBlox /></PrivateRoute>} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <AIAssistant />
     </div>
