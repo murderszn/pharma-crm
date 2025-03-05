@@ -22,6 +22,7 @@ import { PowerPointGenerator } from './pages/PowerPointGenerator';
 import UserGenBlox from './pages/UserGenBlox';
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
+import VisualPlayground from './pages/VisualPlayground';
 
 function ScrollToTop() {
   useScrollToTop();
@@ -71,6 +72,7 @@ export function AppContent() {
         <Route path="/powerpoint-generator" element={<PrivateRoute><PowerPointGenerator /></PrivateRoute>} />
         <Route path="/user-gen-blox/:type" element={<PrivateRoute><UserGenBlox /></PrivateRoute>} />
         <Route path="/" element={<LandingPage />} />
+        <Route path="/visual-playground" element={<PrivateRoute><VisualPlayground /></PrivateRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <AIAssistant />

@@ -53,6 +53,18 @@ export function Navigation() {
                 Dashboard
               </NavLink>
               <NavLink
+                to="/visual-playground"
+                className={({ isActive }) =>
+                  `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                    isActive 
+                      ? 'border-primary-500 text-primary-600' 
+                      : 'border-transparent text-gray-500 hover:text-primary-500 hover:border-primary-300'
+                  }`
+                }
+              >
+                Visual Playground
+              </NavLink>
+              <NavLink
                 to="/insights"
                 className={({ isActive }) =>
                   `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
@@ -163,7 +175,7 @@ export function Navigation() {
       {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="sm:hidden">
-          <div className="pt-2 pb-3 space-y-1 bg-gray-50">
+          <div className="pt-2 pb-3 space-y-1">
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
@@ -176,6 +188,19 @@ export function Navigation() {
               onClick={handleMobileNavClick}
             >
               Dashboard
+            </NavLink>
+            <NavLink
+              to="/visual-playground"
+              className={({ isActive }) =>
+                `block pl-3 pr-4 py-2.5 border-l-4 text-base font-medium transition-colors duration-200 ${
+                  isActive 
+                    ? 'border-primary-500 text-primary-700 bg-primary-50' 
+                    : 'border-transparent text-gray-600 hover:bg-gray-100 hover:border-gray-300'
+                }`
+              }
+              onClick={handleMobileNavClick}
+            >
+              Visual Playground
             </NavLink>
             <NavLink
               to="/insights"
