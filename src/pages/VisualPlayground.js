@@ -14,6 +14,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { nodeTypes as customNodeTypes } from '../components/nodes/CustomNodes';
 import { BetaBadge, BetaMessage } from '../components/BetaDisclaimer';
+import { NodeConfigModal } from '../components/nodes/NodeConfigModal';
 
 // Node Types Definition with descriptions
 const nodeTypeDefinitions = {
@@ -88,19 +89,27 @@ const VisualPlayground = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [lastAddedNode, setLastAddedNode] = useState(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   const categories = ['All', 'Data Sources', 'Processing', 'AI', 'Data Destinations', 'Integrations'];
 
-  // Handle full screen mode
-  const toggleFullScreen = () => {
+  // Toggle sidebar visibility
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarVisible(prev => !prev);
+  }, []);
+
+  // Update fullscreen handler
+  const toggleFullScreen = useCallback(() => {
     if (!document.fullscreenElement) {
-      reactFlowWrapper.current.requestFullscreen();
+      document.documentElement.requestFullscreen();
       setIsFullScreen(true);
     } else {
       document.exitFullscreen();
       setIsFullScreen(false);
     }
-  };
+  }, []);
 
   // Listen for fullscreen changes
   useEffect(() => {
@@ -144,13 +153,47 @@ const VisualPlayground = () => {
         position: coordinates,
         data: { 
           label: nodeTypeDefinitions[type].label,
-          description: nodeTypeDefinitions[type].description
+          description: nodeTypeDefinitions[type].description,
+          config: {}
         }
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      // Add the new node
+      setNodes((nds) => {
+        // If this is the first dropped node (only initial input node exists)
+        if (nds.length === 1 && nds[0].type === 'input') {
+          // Create connection from input node to the new node
+          setEdges((eds) => eds.concat({
+            id: `e${nds[0].id}-${newNode.id}`,
+            source: nds[0].id,
+            target: newNode.id,
+            animated: true
+          }));
+          setLastAddedNode(newNode);
+          return nds.concat(newNode);
+        }
+        
+        // For subsequent nodes, connect to the last added node if it exists
+        if (lastAddedNode) {
+          setEdges((eds) => eds.concat({
+            id: `e${lastAddedNode.id}-${newNode.id}`,
+            source: lastAddedNode.id,
+            target: newNode.id,
+            animated: true
+          }));
+        }
+        
+        return nds.concat(newNode);
+      });
+
+      // Store this as the last added node
+      setLastAddedNode(newNode);
+      
+      // Open configuration modal for the new node
+      setSelectedNode(newNode);
+      setIsConfigModalOpen(true);
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, lastAddedNode, setNodes, setEdges]
   );
 
   const onSave = useCallback(() => {
@@ -175,20 +218,30 @@ const VisualPlayground = () => {
     restoreFlow();
   }, [reactFlowInstance, setNodes, setEdges]);
 
-  const onNodeClick = (event, node) => {
+  const onNodeClick = useCallback((event, node) => {
     setSelectedNode(node);
-    setIsAIModalOpen(true);
-    // In a real implementation, this would call an AI service to analyze the workflow
-    // and provide intelligent suggestions based on the current node and overall flow
-    setAiSuggestion(
-      `Based on your workflow, I recommend:
-      1. ${getAISuggestion(node)}
-      2. Consider adding data validation before this node
-      3. You might want to add error handling for edge cases`
+    setIsConfigModalOpen(true);
+  }, []);
+
+  const handleConfigUpdate = useCallback((nodeId, config) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                config
+              }
+            }
+          : node
+      )
     );
-  };
+  }, [setNodes]);
 
   const getAISuggestion = (node) => {
+    if (!node || !node.type) return "Select a node to get AI suggestions";
+    
     const suggestions = {
       input: "Connect this to a Filter node to clean your data before processing",
       filter: "Add transformation logic after filtering to prepare data for AI processing",
@@ -245,10 +298,10 @@ const VisualPlayground = () => {
                 <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary-800/50 border border-primary-700/50 backdrop-blur-sm">
                   <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></div>
                   <span className="text-sm text-primary-100">Visual Workflow Builder</span>
-                  <BetaBadge />
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white">
-                  Visual Playground
+                <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center">
+                  AURABLOX Visual Playground
+                  <BetaBadge className="ml-3" />
                 </h1>
                 <p className="text-lg text-primary-200 max-w-xl">
                   Build and manage integrations using an intuitive drag-and-drop interface with AI assistance
@@ -298,52 +351,90 @@ const VisualPlayground = () => {
       `}</style>
 
       {/* Main content */}
-      <div className={`${isFullScreen ? 'h-screen' : 'h-[calc(100vh-16rem)]'} flex`}>
-        {/* Sidebar - collapsible in fullscreen */}
-        <div className={`${isFullScreen ? 'absolute left-0 z-10 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out' : 'w-80'} bg-white border-r border-gray-200 flex flex-col`}>
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Node Library</h2>
-            <div className="space-y-4">
+      <div className={`${isFullScreen ? 'fixed inset-0 z-50 bg-white' : 'relative h-[calc(100vh-16rem)]'} flex`}>
+        {/* Sidebar with toggle button */}
+        <div className={`
+          ${isFullScreen ? 'h-full' : 'h-full'} 
+          ${isSidebarVisible ? 'w-80' : 'w-0'} 
+          transition-all duration-300 ease-in-out
+          bg-white border-r border-gray-200 flex flex-col z-20 overflow-hidden
+        `}>
+          {/* Sidebar header with branding */}
+          <div className="p-3 border-b border-gray-200 flex flex-col">
+            {isFullScreen && (
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">A</span>
+                  </div>
+                  <span className="ml-2 text-sm font-semibold text-gray-900">AURABLOX</span>
+                </div>
+                <button
+                  onClick={toggleSidebar}
+                  className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            <h2 className="text-sm font-semibold text-gray-900">Node Library</h2>
+          </div>
+
+          {/* Search and filters */}
+          <div className="p-3 space-y-3 border-b border-gray-200">
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Search nodes..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedCategory === category
-                        ? 'bg-primary-100 text-primary-800'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
+              <svg 
+                className="absolute left-2.5 top-2 w-4 h-4 text-gray-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedCategory === category
+                      ? 'bg-primary-100 text-primary-800'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-3">
+
+          {/* Node list */}
+          <div className="flex-1 overflow-y-auto p-3">
+            <div className="space-y-2">
               {filteredNodeTypes.map(([type, def]) => (
                 <div
                   key={type}
-                  className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm cursor-move hover:shadow-md transition-all duration-200 hover:border-primary-500"
+                  className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm cursor-move hover:shadow-md transition-all duration-200 hover:border-primary-500"
                   onDragStart={(event) => onDragStart(event, type)}
                   draggable
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 rounded-lg ${customNodeTypes[type] ? 'bg-gray-50' : 'bg-primary-50'} flex items-center justify-center`}>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-lg ${customNodeTypes[type] ? 'bg-gray-50' : 'bg-primary-50'} flex items-center justify-center`}>
                       {customNodeTypes[type]?.icon}
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">{def.label}</h3>
-                      <p className="text-xs text-gray-500">{def.description}</p>
+                      <p className="text-xs text-gray-500 line-clamp-1">{def.description}</p>
                     </div>
                   </div>
                 </div>
@@ -352,8 +443,23 @@ const VisualPlayground = () => {
           </div>
         </div>
 
+        {/* Toggle sidebar button - only show when sidebar is hidden */}
+        {!isSidebarVisible && (
+          <button
+            onClick={toggleSidebar}
+            className="absolute left-4 top-4 z-30 p-2 rounded-md bg-white shadow-lg hover:bg-gray-50 group"
+          >
+            <div className="absolute left-full ml-2 px-2 py-1 bg-white rounded shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+              <span className="text-sm text-gray-600">Open Node Library</span>
+            </div>
+            <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
+
         {/* Main flow area */}
-        <div className="flex-1 h-full" ref={reactFlowWrapper}>
+        <div className="flex-1 h-full relative" ref={reactFlowWrapper}>
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}
@@ -373,7 +479,7 @@ const VisualPlayground = () => {
               <Background />
               <Controls />
               <MiniMap />
-              <Panel position="top-right" className="bg-white p-4 rounded-lg shadow-lg space-y-2">
+              <Panel position="top-right" className={`bg-white p-4 rounded-lg shadow-lg space-y-2 ${isFullScreen ? 'z-[90]' : 'z-20'}`}>
                 <button
                   className="w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 flex items-center justify-center space-x-2"
                   onClick={onSave}
@@ -417,61 +523,65 @@ const VisualPlayground = () => {
           </ReactFlowProvider>
         </div>
 
-        {/* AI Assistant Modal */}
+        {/* Configuration Modal - update z-index and styling for fullscreen */}
+        <NodeConfigModal
+          isOpen={isConfigModalOpen}
+          onClose={() => setIsConfigModalOpen(false)}
+          node={selectedNode}
+          onUpdate={handleConfigUpdate}
+          className="z-[150]"
+        />
+
+        {/* AI Assistant Modal - update z-index and styling for fullscreen */}
         <Transition appear show={isAIModalOpen} as={Fragment}>
           <Dialog
             as="div"
-            className="relative z-10"
+            className="fixed inset-0 z-[150]"
             onClose={() => setIsAIModalOpen(false)}
           >
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900"
-                    >
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[150]" aria-hidden="true" />
+            
+            <div className="fixed inset-0 flex items-center justify-center p-4 z-[151]">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all border border-gray-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <Dialog.Title as="h3" className="text-lg font-medium text-gray-900">
                       AI Assistant Suggestions
                     </Dialog.Title>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        {aiSuggestion}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => setIsAIModalOpen(false)}
+                      className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                      {selectedNode ? getAISuggestion(selectedNode) : "Select a node to get AI suggestions"}
+                    </p>
+                  </div>
 
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-primary-100 px-4 py-2 text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                        onClick={() => setIsAIModalOpen(false)}
-                      >
-                        Got it, thanks!
-                      </button>
-                    </div>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors duration-200"
+                      onClick={() => setIsAIModalOpen(false)}
+                    >
+                      Got it, thanks!
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
             </div>
           </Dialog>
         </Transition>

@@ -59,73 +59,63 @@ When responding to users:
 4. For technical questions beyond your knowledge, suggest contacting support
 5. Maintain a helpful, friendly, and professional tone`;
 
-class GeminiService {
-  constructor() {
-    this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-    this.chat = this.model.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: systemContext }]
-        },
-        {
-          role: 'model',
-          parts: [{ text: 'I understand my role as the TechBox Assistant for the AURABLOX platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
-        }
-      ],
-      generationConfig: {
-        maxOutputTokens: 2048,
-        temperature: 0.7,
-        topP: 0.8,
-        topK: 40
-      }
-    });
-  }
-
-  async generateResponse(userInput, currentPath) {
+export const geminiService = {
+  async generateText(prompt, history = []) {
     try {
-      // Add current page context to the user's question
-      const contextualizedInput = `[Current page: ${currentPath}] User question: ${userInput}
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
-Based on the current page and the user's question, provide a helpful response that directly addresses their query. If their question relates to features or functionality available on the current page, provide specific information about those elements.`;
-      
-      const result = await this.chat.sendMessage([{ text: contextualizedInput }]);
+      // Convert chat history to Gemini format if provided
+      const chat = model.startChat({
+        history: history.map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: msg.content,
+        })),
+      });
+
+      const result = await chat.sendMessage(prompt);
       const response = await result.response;
+      
+      // Extract the text content from the response
       return response.text();
     } catch (error) {
-      console.error('Error generating response:', error);
-      if (error.message.includes('API key')) {
-        return 'There seems to be an issue with the API configuration. Please contact support.';
-      }
-      return 'I apologize, but I encountered an error. Please try asking your question again.';
+      console.error('Gemini API Error:', error);
+      return 'I encountered an error processing your request. Please try again.';
     }
-  }
+  },
 
-  // Reset chat when closing the assistant
-  async resetChat() {
+  async analyzeSpreadsheet(data) {
     try {
-      this.chat = this.model.startChat({
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: systemContext }]
-          },
-          {
-            role: 'model',
-            parts: [{ text: 'I understand my role as the TechBox Assistant for the AURABLOX platform. I will provide helpful, accurate, and detailed information about the platform\'s features and help users navigate effectively. I\'m ready to assist with questions about the Dashboard, Grant Finder, RFP Finder, PowerPoint Generator, Insights, Settings, or any other aspect of the platform.' }]
-        }
-        ],
-        generationConfig: {
-          maxOutputTokens: 2048,
-          temperature: 0.7,
-          topP: 0.8,
-          topK: 40
-        }
-      });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const prompt = `Analyze this spreadsheet data and provide insights: ${JSON.stringify(data)}`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      return response.text();
     } catch (error) {
-      console.error('Error resetting chat:', error);
+      console.error('Spreadsheet Analysis Error:', error);
+      return 'Error analyzing spreadsheet data. Please try again.';
+    }
+  },
+
+  async generateSpreadsheetRows(data, headers) {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const prompt = `Based on this data: ${JSON.stringify(data)} with headers: ${JSON.stringify(headers)}, generate 3 new rows that follow the same patterns. Return ONLY the array of new rows in valid JSON format.`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      
+      // Try to parse the response as JSON
+      try {
+        return JSON.parse(response.text());
+      } catch (e) {
+        console.error('Failed to parse Gemini response as JSON:', e);
+        return [];
+      }
+    } catch (error) {
+      console.error('Row Generation Error:', error);
+      return [];
     }
   }
-}
-
-export const geminiService = new GeminiService(); 
+}; 

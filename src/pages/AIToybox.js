@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { aiApi } from '../services/api';
-import { geminiApi } from '../services/geminiApi';
+import { geminiService } from '../services/geminiService';
 import { FEATURES } from '../utils/env';
 import { toast } from '../components/Toast';
 import { QuickStart } from '../components/QuickStart';
+import { BetaBadge, BetaMessage } from '../components/BetaDisclaimer';
+import { HotTable } from '@handsontable/react';
+import 'handsontable/dist/handsontable.full.css';
 
 // Tab icons
 const TabIcons = {
@@ -30,6 +33,11 @@ const TabIcons = {
   'voice-recognition': (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+    </svg>
+  ),
+  'magic-spreadsheet': (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
     </svg>
   )
 };
@@ -77,9 +85,21 @@ export function AIToybox() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  // Add new state for magic spreadsheet
+  const [spreadsheetData, setSpreadsheetData] = useState([
+    ['Name', 'Age', 'Occupation', 'Salary'],
+    ['John Doe', 30, 'Engineer', 85000],
+    ['Jane Smith', 28, 'Designer', ''],
+    ['', '', '', ''],
+    ['', '', '', ''],
+  ]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState('');
+  const hotTableComponent = useRef(null);
+
   // Get the appropriate API service based on feature flags
   const getApiService = () => {
-    return FEATURES.useGeminiAPI ? geminiApi : aiApi;
+    return FEATURES.useGeminiAPI ? geminiService : aiApi;
   };
 
   // Handle chat submission
@@ -184,22 +204,18 @@ export function AIToybox() {
         let response;
         if (FEATURES.useGeminiAPI) {
           // Gemini doesn't generate images directly, but can generate descriptions
-          response = await geminiApi.generateImageDescription(imagePrompt, {
+          response = await api.generateText(imagePrompt, {
             detailed: true
           });
           
           // Set the generated image URL and description
-          if (response && response.imageUrl) {
-            setGeneratedImage(response.imageUrl);
-            setImageDescription(response.description);
-          } else {
-            // Fallback to placeholder if API doesn't return an image
-            simulateImageGeneration();
-            toast.warning('Using placeholder image as API did not return a valid image.');
+          if (response) {
+            setImageDescription(response);
+            simulateImageGeneration(); // Since Gemini can't generate images directly
           }
         } else {
           // Use the original API for image generation
-          response = await aiApi.generateImage(imagePrompt, {
+          response = await api.generateImage(imagePrompt, {
             size: '512x512',
             style: 'natural'
           });
@@ -208,7 +224,6 @@ export function AIToybox() {
           if (response && response.imageUrl) {
             setGeneratedImage(response.imageUrl);
           } else {
-            // Fallback to placeholder if API doesn't return an image
             simulateImageGeneration();
             toast.warning('Using placeholder image as API did not return a valid image.');
           }
@@ -253,12 +268,12 @@ export function AIToybox() {
     
     try {
       const input = useFileUpload ? selectedFile : documentText;
-      const result = await geminiApi.analyzeDocument(input);
+      const result = await geminiService.generateText(input);
       
       if (result.error) {
         toast.error(result.error);
       } else {
-        setDocumentSummary(result.summary);
+        setDocumentSummary(result);
       }
     } catch (error) {
       console.error('Error analyzing document:', error);
@@ -309,10 +324,9 @@ export function AIToybox() {
               // Call the API
               let response;
               if (FEATURES.useGeminiAPI) {
-                // Gemini doesn't have speech-to-text, so use the placeholder
-                response = await geminiApi.speechToText(audioBlob);
+                response = await geminiService.generateText(audioBlob);
               } else {
-                response = await aiApi.speechToText(audioBlob);
+                response = await api.speechToText(audioBlob);
               }
               
               // Set the transcription result
@@ -397,7 +411,7 @@ export function AIToybox() {
           continue;
         }
         
-        const text = await geminiApi.extractTextFromFile(file);
+        const text = await geminiService.generateText(file);
         newDocuments.push({
           id: Math.random().toString(36).substr(2, 9),
           name: file.name,
@@ -423,7 +437,7 @@ export function AIToybox() {
     setRagResponse('');
     
     try {
-      const result = await geminiApi.processRagQuery(ragQuery, documentPool);
+      const result = await geminiService.generateText(ragQuery, documentPool);
       
       if (result.error) {
         switch (result.error) {
@@ -521,6 +535,148 @@ export function AIToybox() {
     }, 2000);
   };
 
+  // Add new handlers for magic spreadsheet
+  const handleSpreadsheetChange = (changes) => {
+    if (changes) {
+      const newData = [...spreadsheetData];
+      changes.forEach(([row, col, oldValue, newValue]) => {
+        newData[row][col] = newValue;
+      });
+      setSpreadsheetData(newData);
+    }
+  };
+
+  // Update the analyzeSpreadsheet function
+  const analyzeSpreadsheet = async () => {
+    setIsAnalyzing(true);
+    try {
+      const nonEmptyRows = spreadsheetData.filter(row => row.some(cell => cell !== ''));
+      const prompt = `Analyze this spreadsheet data and provide a comprehensive analysis. 
+      Headers: ${nonEmptyRows[0].join(', ')}
+      Data: ${JSON.stringify(nonEmptyRows.slice(1))}
+      
+      Please provide a thorough analysis including:
+
+      1. Data Overview:
+         - Total number of records
+         - Completeness of data (any missing values?)
+         - Data range for each column
+         - Basic statistics (min, max, average where applicable)
+
+      2. Patterns and Distributions:
+         - Distribution analysis for numerical columns
+         - Frequency analysis for categorical columns
+         - Any notable clusters or groupings
+         - Outliers or unusual data points
+
+      3. Relationships and Correlations:
+         - Relationships between different columns
+         - Any strong correlations or dependencies
+         - Cause-effect patterns if apparent
+
+      4. Trends and Insights:
+         - Key trends in the data
+         - Notable patterns or cycles
+         - Significant findings or anomalies
+         - Business-relevant insights
+
+      5. Recommendations:
+         - Suggested actions based on the analysis
+         - Areas that need attention or improvement
+         - Potential opportunities identified
+         - Data quality improvements if needed
+
+      Please format the analysis in a clear, structured way with sections and bullet points where appropriate.
+      Focus on insights that would be most valuable for business decision-making.`;
+
+      const result = await geminiService.generateText(prompt);
+      setAnalysisResults(result);
+    } catch (error) {
+      console.error('Spreadsheet analysis error:', error);
+      toast.error('Error analyzing spreadsheet data');
+      simulateSpreadsheetAnalysis();
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Update the fillEmptyRows function
+  const fillEmptyRows = async () => {
+    setIsAnalyzing(true);
+    try {
+      const nonEmptyRows = spreadsheetData.filter(row => row.some(cell => cell !== ''));
+      const headers = spreadsheetData[0];
+      const prompt = `Based on this spreadsheet data:
+      Headers: ${headers.join(', ')}
+      Existing Data: ${JSON.stringify(nonEmptyRows.slice(1))}
+      
+      Generate 3 new rows that follow similar patterns. Return the response in this exact format:
+      [
+        ["Name", Age, "Occupation", Salary],
+        ["Name", Age, "Occupation", Salary],
+        ["Name", Age, "Occupation", Salary]
+      ]
+      
+      Make sure the data is realistic and follows the patterns in the existing data.`;
+
+      const response = await geminiService.generateText(prompt);
+      
+      try {
+        const newRows = JSON.parse(response);
+        if (Array.isArray(newRows) && newRows.length > 0) {
+          const newData = [...nonEmptyRows];
+          newRows.forEach(row => {
+            newData.push(row);
+          });
+          setSpreadsheetData(newData);
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (parseError) {
+        console.error('Error parsing generated rows:', parseError);
+        simulateRowFilling();
+      }
+    } catch (error) {
+      console.error('Row filling error:', error);
+      toast.error('Error filling empty rows');
+      simulateRowFilling();
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const simulateSpreadsheetAnalysis = () => {
+    const analysis = `Analysis Results:
+1. Salary Range: The data shows a salary range between $75,000 and $85,000
+2. Age Distribution: The average age is 29 years
+3. Occupation Mix: Diverse roles including Engineering and Design
+4. Potential Insights: 
+   - Engineering roles command higher salaries
+   - The team appears to be relatively young
+   - There's a good mix of technical and creative roles`;
+    
+    setAnalysisResults(analysis);
+  };
+
+  const simulateRowFilling = () => {
+    const newData = [...spreadsheetData];
+    const sampleData = [
+      ['Michael Brown', 32, 'Product Manager', 95000],
+      ['Sarah Wilson', 27, 'Developer', 78000],
+      ['James Lee', 31, 'UX Researcher', 82000],
+    ];
+    
+    let emptyRowIndex = newData.findIndex(row => row.every(cell => cell === ''));
+    sampleData.forEach(row => {
+      if (emptyRowIndex !== -1) {
+        newData[emptyRowIndex] = row;
+        emptyRowIndex = newData.findIndex(row => row.every(cell => cell === ''));
+      }
+    });
+    
+    setSpreadsheetData(newData);
+  };
+
   const tabs = [
     {
       id: 'chat',
@@ -575,6 +731,11 @@ export function AIToybox() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
         </svg>
       )
+    },
+    {
+      id: 'magic-spreadsheet',
+      name: 'Magic Spreadsheet',
+      icon: TabIcons['magic-spreadsheet']
     }
   ];
 
@@ -642,12 +803,14 @@ export function AIToybox() {
                   <div className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></div>
                   <span className="text-sm text-primary-100">AI Tools Ready</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white">
+                <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center">
                   AI Toybox
+                  <BetaBadge className="ml-3" />
                 </h1>
                 <p className="text-lg text-primary-200 max-w-xl">
                   Harness the power of AI with our comprehensive suite of enterprise-grade tools and solutions
                 </p>
+                <BetaMessage className="mt-2" />
                 <div className="flex items-center gap-4 pt-2">
                   <div className="flex items-center space-x-2 text-sm text-primary-200">
                     <svg className="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -980,7 +1143,7 @@ export function AIToybox() {
                       {documentPool.length === 0 ? (
                         <div className="text-center py-6">
                           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2z" />
                           </svg>
                           <h3 className="mt-2 text-sm font-medium text-gray-900">No documents</h3>
                           <p className="mt-1 text-sm text-gray-500">Add documents to start asking questions about their content.</p>
@@ -1158,6 +1321,77 @@ export function AIToybox() {
                         </svg>
                         Copy to Clipboard
                       </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Magic Spreadsheet */}
+              {activeTab === 'magic-spreadsheet' && (
+                <div className="p-6 space-y-6">
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="text-lg font-medium text-gray-900">Magic Spreadsheet</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Enter your data and let AI analyze patterns or fill in missing information.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4">
+                      <div className="mb-4" style={{ height: '300px' }}>
+                        <HotTable
+                          ref={hotTableComponent}
+                          data={spreadsheetData}
+                          colHeaders={true}
+                          rowHeaders={true}
+                          height="100%"
+                          licenseKey="non-commercial-and-evaluation"
+                          afterChange={handleSpreadsheetChange}
+                          settings={{
+                            stretchH: 'all',
+                            width: '100%',
+                            autoWrapRow: true,
+                            autoWrapCol: true,
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="flex space-x-4">
+                        <button
+                          onClick={analyzeSpreadsheet}
+                          disabled={isAnalyzing}
+                          className={`px-4 py-2 rounded-lg font-medium text-white ${
+                            isAnalyzing
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-primary-600 hover:bg-primary-700'
+                          }`}
+                        >
+                          {isAnalyzing ? 'Analyzing...' : 'Analyze Data'}
+                        </button>
+                        
+                        <button
+                          onClick={fillEmptyRows}
+                          disabled={isAnalyzing}
+                          className={`px-4 py-2 rounded-lg font-medium text-white ${
+                            isAnalyzing
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-primary-600 hover:bg-primary-700'
+                          }`}
+                        >
+                          {isAnalyzing ? 'Processing...' : 'Fill Empty Rows'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {analysisResults && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">Analysis Results</h4>
+                      <div className="prose max-w-none">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700">
+                          {analysisResults}
+                        </pre>
+                      </div>
                     </div>
                   )}
                 </div>

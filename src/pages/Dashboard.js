@@ -814,7 +814,7 @@ export default function Dashboard() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <span className="text-sm font-medium text-gray-700">Unread Emails</span>
-                  </div>
+              </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.emails}</p>
                 </div>
 
@@ -823,7 +823,7 @@ export default function Dashboard() {
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
+                </svg>
                     <span className="text-sm font-medium text-gray-700">Unread Messages</span>
                   </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.messages}</p>
@@ -834,11 +834,11 @@ export default function Dashboard() {
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                </svg>
                     <span className="text-sm font-medium text-gray-700">Today's Meetings</span>
-                  </div>
+            </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.meetings}</p>
-                </div>
+            </div>
 
                 {/* Pending Tasks */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
@@ -849,18 +849,18 @@ export default function Dashboard() {
                     <span className="text-sm font-medium text-gray-700">Pending Tasks</span>
                   </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.todos}</p>
-                </div>
+          </div>
 
                 {/* Upcoming Deadlines */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+        </svg>
                     <span className="text-sm font-medium text-gray-700">Upcoming Deadlines</span>
-                  </div>
+            </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.deadlines}</p>
-                </div>
+        </div>
 
                 {/* Pending Approvals */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
@@ -871,7 +871,7 @@ export default function Dashboard() {
                     <span className="text-sm font-medium text-gray-700">Pending Approvals</span>
                   </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.approvals}</p>
-                </div>
+      </div>
 
                 {/* Recent Mentions */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
@@ -880,35 +880,35 @@ export default function Dashboard() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                     <span className="text-sm font-medium text-gray-700">Recent Mentions</span>
-                  </div>
+        </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.mentions}</p>
-                </div>
+      </div>
 
                 {/* Active Jira Issues */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
+              </svg>
                     <span className="text-sm font-medium text-gray-700">Active Issues</span>
-                  </div>
+          </div>
                   <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.jiraIssues}</p>
-                </div>
-              </div>
-            </div>
-
-            <button
+                  </div>
+                    </div>
+          </div>
+            
+          <button
               onClick={() => setShowAppSelector(true)}
               className="ml-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center shadow-sm flex-shrink-0"
-            >
+          >
               <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               Customize
             </button>
-          </div>
         </div>
+                    </div>
 
         {categories.map(category => {
           const categoryApps = getFilteredApps(category.id);

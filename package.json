@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@google/generative-ai": "^0.22.0",
+    "@handsontable/react": "^15.1.0",
     "@headlessui/react": "^1.7.19",
     "@heroicons/react": "^2.2.0",
     "@tavily/core": "^0.3.1",
@@ -16,6 +17,7 @@
     "@types/react-dom": "^18.2.0",
     "axios": "^1.8.1",
     "framer-motion": "^12.4.10",
+    "handsontable": "^15.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",

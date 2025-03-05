@@ -219,7 +219,7 @@ export function Insights() {
                 <span className="text-sm text-primary-100">Live Analytics</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center">
-                AURABLOX Insights
+                AI Insights
                 <BetaBadge className="ml-3" />
               </h1>
               <p className="text-lg text-primary-200 max-w-xl">
