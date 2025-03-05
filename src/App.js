@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navigation } from './components/Navigation';
 import { LoginPage } from './pages/LoginPage';
-import { Dashboard } from './pages/Dashboard';
+import Dashboard from './pages/Dashboard';
 import { Insights } from './pages/Insights';
 import { Settings } from './pages/Settings';
 import { AIToybox } from './pages/AIToybox';
@@ -19,28 +19,12 @@ import { settingsService } from './services/settingsService';
 import { ContactSales } from './pages/ContactSales';
 import { useScrollToTop } from './hooks/useScrollToTop';
 import { PowerPointGenerator } from './pages/PowerPointGenerator';
+import UserGenBlox from './pages/UserGenBlox';
+import PrivateRoute from './components/PrivateRoute';
 
 function ScrollToTop() {
   useScrollToTop();
   return null;
-}
-
-function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
-  
-  if (!isAuthenticated) {
-    // Save the attempted URL
-    sessionStorage.setItem('redirectUrl', location.pathname);
-    return <Navigate to="/login" replace />;
-  }
-  
-  return (
-    <>
-      <Navigation />
-      {children}
-    </>
-  );
 }
 
 export function AppContent() {
@@ -72,96 +56,19 @@ export function AppContent() {
       <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/insights" 
-          element={
-            <PrivateRoute>
-              <Insights />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/pricing" 
-          element={
-            <PrivateRoute>
-              <PricingPage />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/settings" 
-          element={
-            <PrivateRoute>
-              <Settings />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/ai-toybox" 
-          element={
-            <PrivateRoute>
-              <AIToybox />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/grant-writer" 
-          element={
-            <PrivateRoute>
-              <GrantWriter />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/rfp-finder" 
-          element={
-            <PrivateRoute>
-              <RFPFinderPage />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/grant-finder" 
-          element={
-            <PrivateRoute>
-              <GrantFinderPage />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/rfp-manager" 
-          element={
-            <PrivateRoute>
-              <RFPManager />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/social-media-manager" 
-          element={
-            <PrivateRoute>
-              <SocialMediaManager />
-            </PrivateRoute>
-          } 
-        />
-        <Route path="/contact-sales" element={
-          <PrivateRoute>
-            <ContactSales />
-          </PrivateRoute>
-        } />
-        <Route path="/powerpoint-generator" element={
-          <PrivateRoute>
-            <PowerPointGenerator />
-          </PrivateRoute>
-        } />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/insights" element={<PrivateRoute><Insights /></PrivateRoute>} />
+        <Route path="/pricing" element={<PrivateRoute><PricingPage /></PrivateRoute>} />
+        <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+        <Route path="/ai-toybox" element={<PrivateRoute><AIToybox /></PrivateRoute>} />
+        <Route path="/grant-writer" element={<PrivateRoute><GrantWriter /></PrivateRoute>} />
+        <Route path="/rfp-finder" element={<PrivateRoute><RFPFinderPage /></PrivateRoute>} />
+        <Route path="/grant-finder" element={<PrivateRoute><GrantFinderPage /></PrivateRoute>} />
+        <Route path="/rfp-manager" element={<PrivateRoute><RFPManager /></PrivateRoute>} />
+        <Route path="/social-media-manager" element={<PrivateRoute><SocialMediaManager /></PrivateRoute>} />
+        <Route path="/contact-sales" element={<PrivateRoute><ContactSales /></PrivateRoute>} />
+        <Route path="/powerpoint-generator" element={<PrivateRoute><PowerPointGenerator /></PrivateRoute>} />
+        <Route path="/user-gen-blox/:type" element={<PrivateRoute><UserGenBlox /></PrivateRoute>} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
