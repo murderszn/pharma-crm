@@ -23,6 +23,8 @@ import UserGenBlox from './pages/UserGenBlox';
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
 import VisualPlayground from './pages/VisualPlayground';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ScrollToTop() {
   useScrollToTop();
@@ -76,6 +78,7 @@ export function AppContent() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <AIAssistant />
+      <ToastContainer />
     </div>
   );
 }

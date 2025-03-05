@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from '../components/Toast';
-import { BetaBadge } from '../components/BetaDisclaimer';
 import { AppSelector } from '../components/AppSelector';
-import { CustomAppModal } from '../components/CustomAppModal';
+import styled from 'styled-components';
 
 // Define brandColors object with enhanced enterprise gradients
 const brandColors = {
@@ -67,6 +66,84 @@ const brandColors = {
     via: '#611F69',
     to: '#4A154B',
     shadow: 'rgba(74, 21, 75, 0.15)'
+  },
+  'aws': {
+    from: '#FF9900',
+    via: '#FFA723',
+    to: '#FF9900',
+    shadow: 'rgba(255, 153, 0, 0.15)'
+  },
+  'azure': {
+    from: '#0078D4',
+    via: '#0089FF',
+    to: '#0078D4',
+    shadow: 'rgba(0, 120, 212, 0.15)'
+  },
+  'gcp': {
+    from: '#4285F4',
+    via: '#34A853',
+    to: '#FBBC05',
+    shadow: 'rgba(66, 133, 244, 0.15)'
+  },
+  'jira': {
+    from: '#0052CC',
+    via: '#0065FF',
+    to: '#0052CC',
+    shadow: 'rgba(0, 82, 204, 0.15)'
+  },
+  'trello': {
+    from: '#0079BF',
+    via: '#00A3FF',
+    to: '#0079BF',
+    shadow: 'rgba(0, 121, 191, 0.15)'
+  },
+  'asana': {
+    from: '#F06A6A',
+    via: '#FF8080',
+    to: '#F06A6A',
+    shadow: 'rgba(240, 106, 106, 0.15)'
+  },
+  'monday': {
+    from: '#FF3D57',
+    via: '#FF666F',
+    to: '#FF3D57',
+    shadow: 'rgba(255, 61, 87, 0.15)'
+  },
+  'workday': {
+    from: '#0875E1',
+    via: '#2B8DF5',
+    to: '#0875E1',
+    shadow: 'rgba(8, 117, 225, 0.15)'
+  },
+  'bamboohr': {
+    from: '#7BC053',
+    via: '#8FD066',
+    to: '#7BC053',
+    shadow: 'rgba(123, 192, 83, 0.15)'
+  },
+  'databricks': {
+    from: '#FF3621',
+    via: '#FF4B38',
+    to: '#FF3621',
+    shadow: 'rgba(255, 54, 33, 0.15)'
+  },
+  'snowflake': {
+    from: '#29B5E8',
+    via: '#40C4F4',
+    to: '#29B5E8',
+    shadow: 'rgba(41, 181, 232, 0.15)'
+  },
+  'tableau': {
+    from: '#E97627',
+    via: '#FF8A3D',
+    to: '#E97627',
+    shadow: 'rgba(233, 118, 39, 0.15)'
+  },
+  'sigma': {
+    from: '#00A4EF',
+    via: '#00B8FF',
+    to: '#00A4EF',
+    shadow: 'rgba(0, 164, 239, 0.15)'
   }
 };
 
@@ -86,24 +163,157 @@ const DEFAULT_GLOW = {
   shadow: 'rgba(99, 102, 241, 0.15)'
 };
 
-const AppCard = ({ app, onClick, showTooltip, hideTooltip, isFeatured, isCustom, onRemove }) => {
-  const auraColors = isFeatured ? COMPANY_BLUE : (brandColors[app.id] || DEFAULT_GLOW);
-  
-  // Add a remove button for custom apps
-  const handleRemove = (e) => {
-    e.stopPropagation();
-    if (onRemove) onRemove();
+const AppCard = ({ app, onClick, showTooltip, hideTooltip, isFeatured }) => {
+  const getAuraColors = () => {
+    if (app.brand === 'company') {
+      return COMPANY_BLUE;
+    }
+    return brandColors[app.brand] || DEFAULT_GLOW;
+  };
+
+  const auraColors = getAuraColors();
+
+  // Modern monochrome icon mapping
+  const getIcon = () => {
+    switch (app.id) {
+      case 'ai-toybox':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'social-media-manager':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        );
+      case 'grant-finder':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+          </svg>
+        );
+      case 'grant-writer':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        );
+      case 'powerpoint-generator':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+        );
+      case 'creative-writer':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        );
+      case 'persona-coach':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
+      case 'salesforce':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        );
+      case 'hubspot':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'microsoft-365':
+      case 'teams':
+      case 'azure':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        );
+      case 'google-workspace':
+      case 'gcp':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+          </svg>
+        );
+      case 'slack':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+          </svg>
+        );
+      case 'aws':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        );
+      case 'jira':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+        );
+      case 'trello':
+      case 'monday':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        );
+      case 'asana':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        );
+      case 'workday':
+      case 'bamboohr':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
+      case 'databricks':
+      case 'snowflake':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+          </svg>
+        );
+      case 'tableau':
+      case 'sigma':
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        );
+    }
   };
 
   return (
     <div
       className="relative group"
-      onMouseEnter={() => showTooltip(app.id)}
+      onMouseEnter={() => showTooltip(app)}
       onMouseLeave={hideTooltip}
     >
-      {/* Enhanced aura effect */}
       <div
-        className={`absolute -inset-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 rounded-xl blur-md transition-all duration-500 group-hover:duration-200 ${
+        className={`absolute -inset-[3px] bg-gradient-to-r opacity-0 group-hover:opacity-100 rounded-xl blur-xl transition-all duration-500 group-hover:duration-200 ${
           isFeatured ? 'group-hover:opacity-90' : 'group-hover:opacity-75'
         }`}
         style={{
@@ -115,593 +325,404 @@ const AppCard = ({ app, onClick, showTooltip, hideTooltip, isFeatured, isCustom,
         onClick={() => onClick(app)}
         className={`
           relative flex flex-col p-6 bg-white rounded-xl cursor-pointer
-          h-full min-h-[260px] transition-all duration-300 transform
+          h-full transition-all duration-300 transform
           hover:scale-[1.02] hover:-translate-y-1
-          border border-gray-100/50
-          hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+          border border-gray-100
+          hover:shadow-lg
           backdrop-blur-sm backdrop-saturate-200
+          min-h-[200px]
         `}
         style={{
           boxShadow: `0 4px 20px ${auraColors.shadow}`
         }}
       >
-        <div className="flex items-start space-x-4 mb-4">
-          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-gray-50/80">
-            {app.icon}
+        <div className="flex items-start space-x-4">
+          <div className={`p-3.5 rounded-xl bg-gradient-to-br ${
+            app.brand === 'company' ? 'from-blue-50 via-blue-100 to-blue-50' : 'from-gray-50 via-gray-100 to-gray-50'
+          }`}>
+            <div className={`${
+              app.brand === 'company' ? 'text-blue-600' : 'text-gray-700'
+            }`}>
+              {getIcon()}
+            </div>
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors flex items-center gap-2">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 truncate pr-4">
               {app.name}
+              </h3>
+              <div className="flex flex-wrap gap-1.5 mt-0.5">
               {app.isNew && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   New
                 </span>
               )}
-              {app.isBeta && <BetaBadge />}
-              {isCustom && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Custom</span>}
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {app.description}
-            </p>
+                {app.isBeta && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    Beta
+                  </span>
+                )}
+                {app.isAI && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    AI
+                  </span>
+                )}
           </div>
         </div>
-
-        <div className="flex-grow flex flex-col justify-between">
-          <div className="space-y-3">
-            {app.features && app.features.map((feature, index) => (
-              <div key={index} className="flex items-center text-sm text-gray-600">
-                <svg className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="line-clamp-1">{feature}</span>
+            <p className="mt-2 text-sm text-gray-600 line-clamp-2">{app.description}</p>
               </div>
-            ))}
           </div>
           
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-            {app.isAI && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                AI Powered
-              </span>
-            )}
+        <div className="mt-auto pt-6 flex items-center justify-between">
             <div className="flex items-center text-sm text-gray-500">
-              <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-              Quick Access
+            Launch App
             </div>
-          </div>
-        </div>
-
-        {/* Remove button for custom apps */}
-        {isCustom && onRemove && (
-          <button
-            onClick={handleRemove}
-            className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white bg-opacity-80 hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors duration-200"
-            title="Remove custom app"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+          {app.brand === 'company' && (
+            <div className="flex items-center text-xs font-medium text-blue-600">
+              <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-          </button>
+              Enterprise Ready
+            </div>
         )}
+        </div>
       </div>
     </div>
   );
 };
 
-  // Group applications by category
-  const categories = {
-    collaboration: {
-      title: "Collaboration & Communication",
-      description: "Tools for team collaboration and communication",
-      apps: ['microsoft-365', 'google-workspace', 'zoom', 'slack', 'notion', 'dropbox'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      )
-    },
-    crm: {
-      title: "CRM & Sales",
-      description: "Customer relationship management tools",
-      apps: ['salesforce', 'hubspot', 'zendesk'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )
-    },
-    data: {
-      title: "Data & Analytics",
-      description: "Tools for data analysis and visualization",
-      apps: ['tableau', 'power-bi', 'looker'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      )
-    },
-    project: {
-      title: "Project Management",
-      description: "Tools for managing projects and tasks",
-      apps: ['asana', 'monday', 'jira', 'trello'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-      )
-    },
-    marketing: {
-      title: "Marketing",
-      description: "Digital marketing and campaign tools",
-      apps: ['mailchimp', 'marketo', 'hootsuite'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-        </svg>
-      )
-    },
-    hr: {
-      title: "Human Resources",
-      description: "Manage employee records, recruitment, and HR processes",
-      apps: ['workday', 'bamboohr'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      )
-    },
-    cloud: {
-      title: "Cloud & Infrastructure",
-      description: "Cloud computing, storage, and infrastructure services",
-      apps: ['aws', 'azure', 'gcp', 'dropbox'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-        </svg>
-      )
-    },
-    web: {
-      title: "Web & Content",
-      description: "Web presence and content management tools",
-      apps: ['wordpress'],
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )
-    }
-  };
+// Define categories
+const categories = [
+  { id: 'featured', name: 'Featured AI Apps' },
+  { id: 'user-gen', name: 'User Gen Blox' },
+  { id: 'productivity', name: 'Productivity & Collaboration' },
+  { id: 'crm', name: 'CRM & Sales' },
+  { id: 'project-management', name: 'Project Management' },
+  { id: 'hr', name: 'HR & Team Management' },
+  { id: 'data-analytics', name: 'Data & Analytics' },
+  { id: 'cloud', name: 'Cloud & Infrastructure' },
+  { id: 'development', name: 'Development' },
+  { id: 'custom', name: 'Custom Apps' }
+];
 
 // Featured AI apps
-  const featuredAiApps = [
+const featuredApps = [
     {
       id: 'ai-toybox',
       name: 'AI Toybox',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-        </svg>
-      ),
+    icon: '🎮',
       description: 'Explore our suite of AI tools for content and analysis',
-      isAI: true
+    category: 'featured',
+    isAI: true,
+    brand: 'company'
     },
     {
       id: 'social-media-manager',
       name: 'Social Media Manager',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-        </svg>
-      ),
+    icon: '🔄',
     description: 'Create and manage social media content with AI assistance',
-      isAI: true
+    category: 'featured',
+    isAI: true,
+    brand: 'company'
     },
     {
       id: 'grant-finder',
       name: 'Grant Finder',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-      ),
+    icon: '🔍',
     description: 'Discover grants tailored to your organization using AI matching',
+    category: 'featured',
       isAI: true,
-      isBeta: true
+    isBeta: true,
+    brand: 'company'
     },
     {
       id: 'grant-writer',
       name: 'Grant Writer',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
-      ),
+    icon: '📝',
       description: 'Get AI help writing compelling grant proposals',
-      isAI: true
+    category: 'featured',
+    isAI: true,
+    brand: 'company'
     },
     {
       id: 'powerpoint-generator',
       name: 'Slide Generator',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
-        </svg>
-      ),
+    icon: '📊',
     description: 'Generate professional presentations with AI assistance',
+    category: 'featured',
       isAI: true,
-      isBeta: true
+    isBeta: true,
+    brand: 'company'
     }
   ];
 
-// User Gen Blox - Customizable AI Personas
-const userGenBlox = [
+// User Gen Blox apps
+const userGenApps = [
   {
     id: 'creative-writer',
     name: 'Story Weaver',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
-      ),
-    description: 'Create custom storytelling AI with unique writing styles and genres',
+    description: 'Create custom storytelling AI with unique writing styles',
+    category: 'user-gen',
     isAI: true,
-    features: [
-      'Character Development',
-      'Plot Generation',
-      'World Building',
-      'Genre Adaptation'
-    ]
+    brand: 'company'
   },
   {
     id: 'persona-coach',
     name: 'Life Coach AI',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-        </svg>
-      ),
-    description: 'Design personalized coaching AI with specific expertise and methodologies',
+    description: 'Design personalized coaching AI with specific expertise',
+    category: 'user-gen',
     isAI: true,
-    features: [
-      'Goal Setting',
-      'Progress Tracking',
-      'Personalized Advice',
-      'Habit Formation'
-    ]
-  },
-  {
-    id: 'expert-advisor',
-    name: 'Domain Expert',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-        </svg>
-      ),
-    description: 'Create specialized AI experts in any field or domain',
-    isAI: true,
-    features: [
-      'Knowledge Base Creation',
-      'Expert Consultation',
-      'Field-Specific Insights',
-      'Research Assistant'
-    ]
-  },
-  {
-    id: 'task-master',
-    name: 'Task Assistant',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15" />
-        </svg>
-      ),
-    description: 'Build task-specific AI assistants for any workflow or process',
-    isAI: true,
-    isNew: true,
-    features: [
-      'Workflow Automation',
-      'Process Optimization',
-      'Task Management',
-      'Custom Instructions'
-    ]
+    brand: 'company'
   }
 ];
 
-// Define all applications
-const applications = [
-  // Microsoft 365
+// Enterprise apps
+const enterpriseApps = [
+  {
+    id: 'salesforce',
+    name: 'Salesforce',
+    icon: '💼',
+    description: 'CRM and sales management platform',
+    category: 'crm',
+    brand: 'salesforce'
+  },
+  {
+    id: 'hubspot',
+    name: 'HubSpot',
+    icon: '📊',
+    description: 'Marketing and CRM platform',
+    category: 'crm',
+    brand: 'hubspot'
+  },
+  {
+    id: 'zendesk',
+    name: 'Zendesk',
+    icon: '🎯',
+    description: 'Customer service and engagement platform',
+    category: 'crm',
+    brand: 'zendesk'
+  },
   {
     id: 'microsoft-365',
     name: 'Microsoft 365',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
-        </svg>
-      ),
-    description: 'Complete suite for productivity and collaboration'
-    },
-  // Google Workspace
+    icon: '📝',
+    description: 'Productivity and collaboration suite',
+    category: 'productivity',
+    brand: 'microsoft-365'
+  },
     {
     id: 'google-workspace',
     name: 'Google Workspace',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15" />
-        </svg>
-      ),
-    description: 'Cloud-based productivity and collaboration tools'
-    },
-  // Zoom
+    icon: '📧',
+    description: 'Business productivity and collaboration tools',
+    category: 'productivity',
+    brand: 'google-workspace'
+  },
     {
     id: 'zoom',
     name: 'Zoom',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-        </svg>
-      ),
-    description: 'Video conferencing and virtual meeting platform'
-    },
-  // Teams
-    {
-    id: 'teams',
-    name: 'Microsoft Teams',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-        </svg>
-      ),
-    description: 'Team collaboration and communication platform'
-    },
-  // Slack
+    icon: '🎥',
+    description: 'Video conferencing platform',
+    category: 'productivity',
+    brand: 'zoom'
+  },
     {
     id: 'slack',
     name: 'Slack',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-        </svg>
-      ),
-    description: 'Business communication and collaboration platform'
-    },
-  // Salesforce
-    {
-    id: 'salesforce',
-    name: 'Salesforce',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-        </svg>
-      ),
-    description: 'Leading CRM platform for customer relationship management'
-    },
-  // HubSpot
-    {
-    id: 'hubspot',
-    name: 'HubSpot',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-        </svg>
-      ),
-    description: 'All-in-one inbound marketing, sales, and service platform'
-    },
-  // Zendesk
-    {
-    id: 'zendesk',
-    name: 'Zendesk',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-        </svg>
-      ),
-    description: 'Customer service software and support ticket system'
-    },
-  // Dropbox
-    {
-      id: 'dropbox',
-      name: 'Dropbox',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-        </svg>
-      ),
-    description: 'File hosting service for file storage and sharing'
-    },
-  // WordPress
-    {
-      id: 'wordpress',
-      name: 'WordPress',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-        </svg>
-      ),
-    description: 'Content management system for websites and blogs'
+    icon: '💬',
+    description: 'Team communication platform',
+    category: 'productivity',
+    brand: 'slack'
   },
-  // Databricks
-    {
-      id: 'databricks',
-      name: 'Databricks',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-        </svg>
-      ),
-    description: 'Unified analytics platform for big data and machine learning'
-    },
-  // Snowflake
-    {
-      id: 'snowflake',
-      name: 'Snowflake',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
-        </svg>
-      ),
-    description: 'Cloud-based data warehousing platform'
-    },
-  // Tableau
-    {
-      id: 'tableau',
-      name: 'Tableau',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-        </svg>
-      ),
-    description: 'Data visualization and business intelligence platform'
-    },
-  // Sigma
-    {
-      id: 'sigma',
-      name: 'Sigma Computing',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
-        </svg>
-      ),
-    description: 'Cloud-native analytics and business intelligence'
+  {
+    id: 'teams',
+    name: 'Microsoft Teams',
+    icon: '👥',
+    description: 'Team collaboration platform',
+    category: 'productivity',
+    brand: 'teams'
   },
-  // Asana
+  {
+    id: 'aws',
+    name: 'AWS',
+    icon: '☁️',
+    description: 'Cloud computing services',
+    category: 'cloud',
+    brand: 'aws'
+  },
+  {
+    id: 'azure',
+    name: 'Microsoft Azure',
+    icon: '⚡',
+    description: 'Cloud platform and services',
+    category: 'cloud',
+    brand: 'microsoft-365'
+  },
+  {
+    id: 'gcp',
+    name: 'Google Cloud',
+    icon: '🌩️',
+    description: 'Cloud computing platform',
+    category: 'cloud',
+    brand: 'google-workspace'
+  }
+];
+
+// Project Management apps
+const projectManagementApps = [
+  {
+    id: 'jira',
+    name: 'Jira',
+    description: 'Agile project management and issue tracking',
+    category: 'project-management',
+    brand: 'jira'
+  },
+  {
+    id: 'trello',
+    name: 'Trello',
+    description: 'Visual project management and collaboration',
+    category: 'project-management',
+    brand: 'trello'
+  },
   {
     id: 'asana',
     name: 'Asana',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593-3.068a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.746 3.746 0 013.296-1.043 3.745 3.745 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-        </svg>
-      ),
-    description: 'Work management platform for teams'
-    },
-  // Jira
-    {
-    id: 'jira',
-    name: 'Jira',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
-        </svg>
-      ),
-    description: 'Issue and project tracking for software teams'
-  },
-  // Monday
+    description: 'Work management platform for teams',
+    category: 'project-management',
+    brand: 'asana'
+  }
+];
+
+// HR apps
+const hrApps = [
   {
     id: 'monday',
     name: 'Monday.com',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                  </svg>
-    ),
-    description: 'Work OS for managing teams and projects'
+    description: 'Team management and collaboration platform',
+    category: 'hr',
+    brand: 'monday'
   },
-  // Workday
   {
     id: 'workday',
     name: 'Workday',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-        </svg>
-      ),
-    description: 'Enterprise cloud applications for finance and HR'
-    },
-  // BambooHR
+    description: 'Enterprise HR and finance management',
+    category: 'hr',
+    brand: 'workday'
+  },
     {
     id: 'bamboohr',
     name: 'BambooHR',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-        </svg>
-      ),
-    description: 'HR software for small and medium businesses'
-    },
-  // AWS
-    {
-    id: 'aws',
-    name: 'AWS',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
-        </svg>
-      ),
-    description: 'Cloud computing services and APIs'
-    },
-  // Azure
-    {
-    id: 'azure',
-    name: 'Microsoft Azure',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
-        </svg>
-      ),
-    description: 'Cloud computing service for building and managing applications'
-    },
-  // GCP
-    {
-    id: 'gcp',
-    name: 'Google Cloud',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
-        </svg>
-      ),
-    description: 'Suite of cloud computing services by Google'
+    description: 'HR software for growing companies',
+    category: 'hr',
+    brand: 'bamboohr'
   }
+];
+
+// Data & Analytics apps
+const dataApps = [
+  {
+    id: 'databricks',
+    name: 'Databricks',
+    description: 'Unified analytics platform for big data and ML',
+    category: 'data-analytics',
+    brand: 'databricks'
+  },
+  {
+    id: 'snowflake',
+    name: 'Snowflake',
+    description: 'Cloud data platform and warehouse',
+    category: 'data-analytics',
+    brand: 'snowflake'
+  },
+  {
+    id: 'tableau',
+    name: 'Tableau',
+    description: 'Business intelligence and analytics platform',
+    category: 'data-analytics',
+    brand: 'tableau'
+  },
+  {
+    id: 'sigma',
+    name: 'Sigma Computing',
+    description: 'Cloud-native analytics and business intelligence',
+    category: 'data-analytics',
+    brand: 'sigma'
+  }
+];
+
+// Combine all apps
+const applications = [
+  ...featuredApps,
+  ...userGenApps,
+  ...enterpriseApps,
+  ...projectManagementApps,
+  ...hrApps,
+  ...dataApps
 ];
 
 export default function Dashboard() {
   const { user, userPreferences, updateSelectedApps } = useAuth();
   const navigate = useNavigate();
   const [showAppSelector, setShowAppSelector] = useState(false);
-  const [showCustomAppModal, setShowCustomAppModal] = useState(false);
-  const [customApps, setCustomApps] = useState([]);
   const [tooltipApp, setTooltipApp] = useState(null);
+  const [taskSummary, setTaskSummary] = useState({
+    emails: 0,
+    messages: 0,
+    todos: 0,
+    jiraIssues: 0,
+    meetings: 0,
+    deadlines: 0,
+    approvals: 0,
+    mentions: 0
+  });
 
-  // Load custom apps from localStorage on component mount
-  useEffect(() => {
-    const savedCustomApps = localStorage.getItem('customApps');
-    if (savedCustomApps) {
-      try {
-        setCustomApps(JSON.parse(savedCustomApps));
-      } catch (error) {
-        console.error('Error loading custom apps:', error);
-      }
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  // Get user's name with fallback
+  const getUserName = () => {
+    const firstName = user?.displayName?.split(' ')[0] || user?.firstName || user?.email?.split('@')[0];
+    if (!firstName) {
+      return (
+        <div className="inline-flex items-center">
+          <span className="text-gray-600">friend</span>
+          <button
+            onClick={() => navigate('/profile')}
+            className="ml-2 text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Set your name
+          </button>
+        </div>
+      );
     }
-  }, []);
+    return <span className="capitalize">{firstName}</span>;
+  };
 
-  // Save custom apps to localStorage whenever they change
+  // Fetch task summary (mock data for now)
   useEffect(() => {
-    if (customApps.length > 0) {
-      localStorage.setItem('customApps', JSON.stringify(customApps));
-    }
-  }, [customApps]);
-
-  const handleAddCustomApp = (newApp) => {
-    setCustomApps(prevApps => {
-      const updatedApps = [...prevApps, newApp];
-      return updatedApps;
+    // This would typically be an API call to fetch real data
+    setTaskSummary({
+      emails: 12,
+      messages: 5,
+      todos: 8,
+      jiraIssues: 3,
+      meetings: 4,
+      deadlines: 2,
+      approvals: 3,
+      mentions: 7
     });
-  };
-
-  const handleRemoveCustomApp = (appId) => {
-    setCustomApps(prevApps => prevApps.filter(app => app.id !== appId));
-    
-    // Also remove from selected apps if it was selected
-    if (userPreferences?.selectedApps?.includes(appId)) {
-      const updatedSelectedApps = userPreferences.selectedApps.filter(id => id !== appId);
-      updateSelectedApps(updatedSelectedApps);
-    }
-  };
+  }, []);
 
   // Application launch URLs
   const appUrls = {
@@ -750,230 +771,182 @@ export default function Dashboard() {
 
   const handleAppClick = (app) => {
     const url = appUrls[app.id];
-    
     if (!url) {
       toast.error(`Launch URL not configured for ${app.name}`);
       return;
     }
     
-    // Show launch animation
-    toast.info(`Launching ${app.name}...`);
-
-    // Handle custom apps with direct URLs
-    if (app.isCustom && app.url) {
-      window.open(app.url, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    // Internal route
     if (url.startsWith('/')) {
       navigate(url);
-      return;
-    }
-
-    // External URL - open in new tab
+    } else {
     window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
-  const getFilteredApps = (categoryApps) => {
-    // If no preferences or all apps selected, return all apps for this category
+  const getFilteredApps = (categoryId) => {
     if (!userPreferences?.selectedApps || userPreferences.selectedApps.length === 0) {
-      // Include custom apps that match the category
-      const categoryCustomApps = customApps.filter(app => app.category === categoryApps[0]?.category);
-      return [...categoryApps, ...categoryCustomApps];
+      return applications.filter(app => app.category === categoryId);
     }
     
-    // Filter apps based on user preferences
-    const filteredApps = categoryApps.filter(app => 
+    return applications.filter(app => 
+      app.category === categoryId && 
       userPreferences.selectedApps.includes(app.id)
     );
-    
-    // Add custom apps that match the category and are in selected apps
-    const filteredCustomApps = customApps.filter(app => 
-      app.category === categoryApps[0]?.category && 
-      userPreferences.selectedApps.includes(app.id)
-    );
-    
-    return [...filteredApps, ...filteredCustomApps];
   };
 
     return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              Welcome back, {user?.displayName || user?.email?.split('@')[0] || 'User'}
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Your personalized dashboard with all your tools in one place
-            </p>
-              </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-              <button
-              type="button"
-              onClick={() => setShowCustomAppModal(true)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-              <svg className="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-              Add Custom App
-              </button>
-              <button
-              onClick={() => setShowAppSelector(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
-              >
-              <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                </svg>
-              Customize
-              </button>
-            </div>
-            </div>
-          </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Featured AI Apps section */}
-        <section className="mb-16">
-          <div className="flex items-center mb-6">
-            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-primary-100 text-primary-600 mr-3">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-            </div>
-        <div>
-              <h2 className="text-2xl font-bold text-gray-900">Featured AI Apps</h2>
-              <p className="text-sm text-gray-500 mt-1">Powerful AI tools to enhance your productivity</p>
-        </div>
-      </div>
-
-          <div className="bg-gradient-to-r from-blue-50 via-white to-blue-50 rounded-2xl p-6 border border-blue-100">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredAiApps.map(app => (
-                <AppCard
-            key={app.id}
-                  app={app}
-                  onClick={handleAppClick}
-                  showTooltip={() => setTooltipApp(app)}
-                  hideTooltip={() => setTooltipApp(null)}
-                  isFeatured={true}
-                  isCustom={false}
-                />
-          ))}
-        </div>
-      </div>
-        </section>
-
-        {/* User Gen Blox section */}
-        <section className="mb-16">
-          <div className="flex items-center mb-6">
-            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-primary-100 text-primary-600 mr-3">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5" />
-              </svg>
-          </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">User Gen Blox</h2>
-              <p className="text-sm text-gray-500 mt-1">Create and customize AI assistants for specific tasks</p>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Personalized Greeting Section */}
+        <div className="mb-8 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-start">
+            <div className="w-full">
+              <h1 className="text-3xl font-bold text-gray-900">
+                {getGreeting()}, {getUserName()} 👋
+              </h1>
+              <p className="mt-2 text-gray-600">Here's what's on your plate today:</p>
+              
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* Unread Emails */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Unread Emails</span>
                   </div>
-            <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-              Beta
-                    </span>
-                    </div>
-          
-          <div className="bg-gradient-to-r from-primary-50 via-white to-primary-50 rounded-2xl p-6 border border-primary-100">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {userGenBlox.map(app => (
-                <AppCard
-                  key={app.id}
-                  app={app}
-                  onClick={handleAppClick}
-                  showTooltip={() => setTooltipApp(app)}
-                  hideTooltip={() => setTooltipApp(null)}
-                  isFeatured={false}
-                  isCustom={false}
-                />
-              ))}
-          </div>
-            
-            <div className="mt-6 flex justify-center">
-          <button
-                onClick={() => navigate('/user-gen-blox/create')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
-          >
-                <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-                Create Custom AI Assistant
-            </button>
-        </div>
-                    </div>
-        </section>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.emails}</p>
+                </div>
 
-        {/* Regular app categories */}
-        {Object.entries(categories).map(([key, category]) => {
-          const filteredApps = getFilteredApps(applications.filter(app => category.apps.includes(app.id)));
-          
-          if (filteredApps.length === 0) return null;
+                {/* Messages */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Unread Messages</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.messages}</p>
+                </div>
+
+                {/* Today's Meetings */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Today's Meetings</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.meetings}</p>
+                </div>
+
+                {/* Pending Tasks */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Pending Tasks</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.todos}</p>
+                </div>
+
+                {/* Upcoming Deadlines */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Upcoming Deadlines</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.deadlines}</p>
+                </div>
+
+                {/* Pending Approvals */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Pending Approvals</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.approvals}</p>
+                </div>
+
+                {/* Recent Mentions */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Recent Mentions</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.mentions}</p>
+                </div>
+
+                {/* Active Jira Issues */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Active Issues</span>
+                  </div>
+                  <p className="mt-2 text-2xl font-semibold text-gray-900">{taskSummary.jiraIssues}</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowAppSelector(true)}
+              className="ml-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center shadow-sm flex-shrink-0"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Customize
+            </button>
+          </div>
+        </div>
+
+        {categories.map(category => {
+          const categoryApps = getFilteredApps(category.id);
+          if (categoryApps.length === 0 || category.id === 'custom') return null;
 
           return (
-            <section key={key} className="mb-16">
-              <div className="flex items-center mb-6">
-                <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-gray-100 text-gray-600 mr-3">
-                  {category.icon || (
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                  )}
+            <div key={category.id} className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">{category.name}</h2>
+                <div className="h-px flex-1 bg-gray-200 ml-4"></div>
                   </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
-                  {category.description && (
-                    <p className="text-sm text-gray-500 mt-1">{category.description}</p>
-                  )}
-                </div>
-          </div>
-              
-              <div className="bg-gradient-to-r from-gray-50 via-white to-gray-50 rounded-2xl p-6 border border-gray-100">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredApps.map(app => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categoryApps.map(app => (
                     <AppCard
                       key={app.id}
                       app={app}
-                      onClick={() => handleAppClick(app)}
-                      showTooltip={() => setTooltipApp(app)}
+                    onClick={handleAppClick}
+                    showTooltip={setTooltipApp}
                       hideTooltip={() => setTooltipApp(null)}
-                      isFeatured={false}
-                      isCustom={app.isCustom}
-                      onRemove={app.isCustom ? () => handleRemoveCustomApp(app.id) : undefined}
+                    isFeatured={category.id === 'featured'}
                     />
         ))}
           </div>
         </div>
-            </section>
           );
         })}
-      </div>
 
       {/* App Selector Modal */}
       {showAppSelector && (
         <AppSelector
           onClose={() => setShowAppSelector(false)}
-          applications={[...applications, ...customApps]}
+            applications={applications}
           selectedApps={userPreferences?.selectedApps || []}
           onSave={updateSelectedApps}
-          categories={categories}
-        />
-      )}
-
-      {/* Custom App Modal */}
-      <CustomAppModal
-        isOpen={showCustomAppModal}
-        onClose={() => setShowCustomAppModal(false)}
-        onAddCustomApp={handleAddCustomApp}
-      />
+            categories={categories.filter(cat => cat.id !== 'custom')}
+          />
+        )}
+      </div>
     </div>
   );
 } 

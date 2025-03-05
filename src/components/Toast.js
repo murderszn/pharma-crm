@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { toast as toastify } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Toast component
 export function Toast({ message, type = 'info', duration = 3000, onClose }) {
@@ -125,20 +127,34 @@ export const ToastProvider = ({ children }) => {
 };
 
 export const toast = {
-  show: (message, type = 'info', duration = 3000) => {
-    const id = `toast-${toastCount++}`;
-    const newToast = { id, message, type, duration };
-    
-    if (setToastsState) {
-      setToastsState((prevToasts) => [...prevToasts, newToast]);
-    } else {
-      console.warn('Toast service not initialized. Make sure ToastProvider is mounted.');
-    }
-    
-    return id;
+  success: (message) => {
+    toastify.success(message, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   },
-  info: (message, duration) => toast.show(message, 'info', duration),
-  success: (message, duration) => toast.show(message, 'success', duration),
-  warning: (message, duration) => toast.show(message, 'warning', duration),
-  error: (message, duration) => toast.show(message, 'error', duration),
+  error: (message) => {
+    toastify.error(message, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  },
+  info: (message) => {
+    toastify.info(message, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  },
 }; 
